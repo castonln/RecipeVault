@@ -1,0 +1,70 @@
+# Build output
+bin/
+obj/
+*.dll
+*.exe
+*.app
+*.pdb
+*.cache
+*.mdb
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio Code
+.vscode/
+.vscode/*
+
+# Rider
+.idea/
+*.sln.iml
+
+# ASP.NET
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Logs
+*.log
+logs/
+*.tlog
+
+# Entity Framework
+Migrations/
+
+# EF tools output (optional if you scaffold models)
+ScaffoldedModels/
+*.bak
+
+# Secrets
+secrets.json
+appsettings.Development.json
+*.env
+.env.*
+
+# OS Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Others
+*.nupkg
+packages/
+*.vspscc
+.vs/
+
+# Tests
+TestResults/
+*.TestResults/
+
+# JetBrains Rider
+.idea/
+
+# dotnet CLI
+*.dbmdl
+*.coverage
+*.coveragexml
+*.orig
