@@ -3,15 +3,15 @@ using System.Collections.Generic;
 
 namespace server.Models;
 
-public partial class user
+public partial class User
 {
-    public Guid id { get; set; }
+    public Guid Id { get; set; }
 
-    public string username { get; set; } = null!;
+    public string Username { get; set; } = null!;
 
-    public string password_hash { get; set; } = null!;
+    public string PasswordHash { get; set; } = null!;
 
-    public DateOnly created_at { get; set; }
+    public DateOnly CreatedAt { get; set; }
 
-    public string email { get; set; } = null!;
+    public string Email { get; set; } = null!;
 }

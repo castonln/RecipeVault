@@ -1,16 +1,19 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using server;
+using server.Data;
 
 namespace client.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class UserController : ControllerBase
+    public class UserController(AppDbContext context) : ControllerBase
     {
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            return Ok(Constants.DB_CONNECTION_STRING);
+            var items = await context.Users.ToListAsync();
+            return Ok(items);
         }
     }
 }

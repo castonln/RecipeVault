@@ -16,7 +16,7 @@ public partial class AppDbContext : DbContext
     {
     }
 
-    public virtual DbSet<user> users { get; set; }
+    public virtual DbSet<User> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) => 
         optionsBuilder.UseNpgsql(Constants.DB_CONNECTION_STRING);
@@ -37,18 +37,29 @@ public partial class AppDbContext : DbContext
             .HasPostgresExtension("graphql", "pg_graphql")
             .HasPostgresExtension("vault", "supabase_vault");
 
-        modelBuilder.Entity<user>(entity =>
+        modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.id).HasName("users_pkey");
+            entity.HasKey(e => e.Id).HasName("users_pkey");
 
-            entity.HasIndex(e => e.email, "users_email_key").IsUnique();
+            entity.ToTable("users");
 
-            entity.HasIndex(e => e.username, "users_username_key").IsUnique();
+            entity.HasIndex(e => e.Email, "users_email_key").IsUnique();
 
-            entity.Property(e => e.id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.email).HasColumnType("character varying");
-            entity.Property(e => e.password_hash).HasColumnType("character varying");
-            entity.Property(e => e.username).HasColumnType("character varying");
+            entity.HasIndex(e => e.Username, "users_username_key").IsUnique();
+
+            entity.Property(e => e.Id)
+                .HasDefaultValueSql("gen_random_uuid()")
+                .HasColumnName("id");
+            entity.Property(e => e.CreatedAt).HasColumnName("created_at");
+            entity.Property(e => e.Email)
+                .HasColumnType("character varying")
+                .HasColumnName("email");
+            entity.Property(e => e.PasswordHash)
+                .HasColumnType("character varying")
+                .HasColumnName("password_hash");
+            entity.Property(e => e.Username)
+                .HasColumnType("character varying")
+                .HasColumnName("username");
         });
 
         OnModelCreatingPartial(modelBuilder);
