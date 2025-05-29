@@ -39,6 +39,7 @@ jobs:
         displayName: Build and Push Docker Images
 
   - job: DeployBackend
+    dependsOn: BuildAndPush
     displayName: Deploy Backend to Render
     steps:
       - script: |
@@ -46,6 +47,7 @@ jobs:
         displayName: Trigger Render Deploy Hook for Backend
 
   - job: DeployFrontend
+    dependsOn: DeployBackend
     displayName: Deploy Frontend to Render
     steps:
       - script: |
