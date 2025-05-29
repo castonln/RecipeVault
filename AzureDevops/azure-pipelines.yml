@@ -10,51 +10,44 @@ trigger:
 variables:
   - group: RecipeVault_PROD
 
-stages:
-  - stage: BuildAndPush
-    displayName: Build and Push Docker Images
-    jobs:
-      - job: BuildAndPush
-        displayName: Build and Push
-        pool:
-          vmImage: 'ubuntu-latest'
+jobs:
+  - job: BuildAndPush
+    displayName: Build and Push
+    pool:
+      vmImage: 'ubuntu-latest'
 
-        steps:
-          - task: DockerInstaller@0
-            displayName: Install Docker
-            inputs:
-              dockerVersion: '24.0.6'
+    steps:
+      - task: DockerInstaller@0
+        displayName: Install Docker
+        inputs:
+          dockerVersion: '24.0.6'
 
-          - script: |
-              echo "$(DOCKER_HUB_PASSWORD)" | docker login -u "$(DOCKER_HUB_USERNAME)" --password-stdin
+      - script: |
+          echo "$(DOCKER_HUB_PASSWORD)" | docker login -u "$(DOCKER_HUB_USERNAME)" --password-stdin
 
-              docker build -t $(dockerHubNamespace)/$(ReactClientName):$(Build.BuildId) ./server
-              docker build -t $(dockerHubNamespace)/$(DotnetServerName):$(Build.BuildId) ./client
+          docker build -t $(dockerHubNamespace)/$(ReactClientName):$(Build.BuildId) ./server
+          docker build -t $(dockerHubNamespace)/$(DotnetServerName):$(Build.BuildId) ./client
 
-              docker tag $(dockerHubNamespace)/$(ReactClientName):$(Build.BuildId) $(dockerHubNamespace)/$(ReactClientName):latest
-              docker tag $(dockerHubNamespace)/$(DotnetServerName):$(Build.BuildId) $(dockerHubNamespace)/$(DotnetServerName):latest
+          docker tag $(dockerHubNamespace)/$(ReactClientName):$(Build.BuildId) $(dockerHubNamespace)/$(ReactClientName):latest
+          docker tag $(dockerHubNamespace)/$(DotnetServerName):$(Build.BuildId) $(dockerHubNamespace)/$(DotnetServerName):latest
 
-              docker push $(dockerHubNamespace)/$(ReactClientName):$(Build.BuildId)
-              docker push $(dockerHubNamespace)/$(ReactClientName):latest
+          docker push $(dockerHubNamespace)/$(ReactClientName):$(Build.BuildId)
+          docker push $(dockerHubNamespace)/$(ReactClientName):latest
 
-              docker push $(dockerHubNamespace)/$(DotnetServerName):$(Build.BuildId)
-              docker push $(dockerHubNamespace)/$(DotnetServerName):latest
-            displayName: Build and Push Docker Images
+          docker push $(dockerHubNamespace)/$(DotnetServerName):$(Build.BuildId)
+          docker push $(dockerHubNamespace)/$(DotnetServerName):latest
+        displayName: Build and Push Docker Images
 
-  - stage: Deploy
-    displayName: Trigger Render Deploy Hooks
-    dependsOn: BuildAndPush
-    jobs:
-      - job: DeployBackend
-        displayName: Deploy Backend to Render
-        steps:
-          - script: |
-              curl -X POST $(renderDeployHookBackend)
-            displayName: Trigger Render Deploy Hook for Backend
+  - job: DeployBackend
+    displayName: Deploy Backend to Render
+    steps:
+      - script: |
+          curl -X POST $(renderDeployHookBackend)
+        displayName: Trigger Render Deploy Hook for Backend
 
-      - job: DeployFrontend
-        displayName: Deploy Frontend to Render
-        steps:
-          - script: |
-              curl -X POST $(renderDeployHookFrontend)
-            displayName: Trigger Render Deploy Hook for Frontend
+  - job: DeployFrontend
+    displayName: Deploy Frontend to Render
+    steps:
+      - script: |
+          curl -X POST $(renderDeployHookFrontend)
+        displayName: Trigger Render Deploy Hook for Frontend
