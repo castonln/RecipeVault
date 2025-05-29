@@ -25,17 +25,17 @@ jobs:
       - script: |
           echo "$(DOCKER_HUB_PASSWORD)" | docker login -u "$(DOCKER_HUB_USERNAME)" --password-stdin
 
-          docker build -t $(dockerHubNamespace)/$(ReactClientName):$(Build.BuildId) ./server
-          docker build -t $(dockerHubNamespace)/$(DotnetServerName):$(Build.BuildId) ./client
+          docker build -t $(dockerHubNamespace)/$(DotnetServerName):$(Build.BuildId) ./server
+          docker build -t $(dockerHubNamespace)/$(ReactClientName):$(Build.BuildId) ./client
 
-          docker tag $(dockerHubNamespace)/$(ReactClientName):$(Build.BuildId) $(dockerHubNamespace)/$(ReactClientName):latest
           docker tag $(dockerHubNamespace)/$(DotnetServerName):$(Build.BuildId) $(dockerHubNamespace)/$(DotnetServerName):latest
-
-          docker push $(dockerHubNamespace)/$(ReactClientName):$(Build.BuildId)
-          docker push $(dockerHubNamespace)/$(ReactClientName):latest
+          docker tag $(dockerHubNamespace)/$(ReactClientName):$(Build.BuildId) $(dockerHubNamespace)/$(ReactClientName):latest
 
           docker push $(dockerHubNamespace)/$(DotnetServerName):$(Build.BuildId)
           docker push $(dockerHubNamespace)/$(DotnetServerName):latest
+
+          docker push $(dockerHubNamespace)/$(ReactClientName):$(Build.BuildId)
+          docker push $(dockerHubNamespace)/$(ReactClientName):latest
         displayName: Build and Push Docker Images
 
   - job: DeployBackend
