@@ -25,12 +25,9 @@ stages:
             inputs:
               dockerVersion: '24.0.6'
 
-          - task: DockerLogin@2
-            displayName: Docker Hub Login
-            inputs:
-              containerRegistry: '$(dockerRegistryServiceConnection)'
-
           - script: |
+              echo "$(DOCKER_HUB_PASSWORD)" | docker login -u "$(DOCKER_HUB_USERNAME)" --password-stdin
+
               docker build -t $(dockerHubNamespace)/$(ReactClientName):$(Build.BuildId) ./server
               docker build -t $(dockerHubNamespace)/$(DotnetServerName):$(Build.BuildId) ./client
 
