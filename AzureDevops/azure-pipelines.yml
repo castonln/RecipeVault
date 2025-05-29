@@ -1,0 +1,63 @@
+# azure-pipelines.yml
+# Continuous Deployment Pipeline for Docker-based Frontend and Backend
+# Pushes images to Docker Hub and triggers Render deploy hooks
+
+trigger:
+  branches:
+    include:
+      - main
+
+variables:
+  - group: RecipeVault_PROD
+
+stages:
+  - stage: BuildAndPush
+    displayName: Build and Push Docker Images
+    jobs:
+      - job: BuildAndPush
+        displayName: Build and Push
+        pool:
+          vmImage: 'ubuntu-latest'
+
+        steps:
+          - task: DockerInstaller@0
+            displayName: Install Docker
+            inputs:
+              dockerVersion: '24.0.6'
+
+          - task: DockerLogin@2
+            displayName: Docker Hub Login
+            inputs:
+              containerRegistry: '$(dockerRegistryServiceConnection)'
+
+          - script: |
+              docker build -t $(dockerHubNamespace)/$(ReactClientName):$(Build.BuildId) ./server
+              docker build -t $(dockerHubNamespace)/$(DotnetServerName):$(Build.BuildId) ./client
+
+              docker tag $(dockerHubNamespace)/$(ReactClientName):$(Build.BuildId) $(dockerHubNamespace)/$(ReactClientName):latest
+              docker tag $(dockerHubNamespace)/$(DotnetServerName):$(Build.BuildId) $(dockerHubNamespace)/$(DotnetServerName):latest
+
+              docker push $(dockerHubNamespace)/$(ReactClientName):$(Build.BuildId)
+              docker push $(dockerHubNamespace)/$(ReactClientName):latest
+
+              docker push $(dockerHubNamespace)/$(DotnetServerName):$(Build.BuildId)
+              docker push $(dockerHubNamespace)/$(DotnetServerName):latest
+            displayName: Build and Push Docker Images
+
+  - stage: Deploy
+    displayName: Trigger Render Deploy Hooks
+    dependsOn: BuildAndPush
+    jobs:
+      - job: DeployBackend
+        displayName: Deploy Backend to Render
+        steps:
+          - script: |
+              curl -X POST $(renderDeployHookBackend)
+            displayName: Trigger Render Deploy Hook for Backend
+
+      - job: DeployFrontend
+        displayName: Deploy Frontend to Render
+        steps:
+          - script: |
+              curl -X POST $(renderDeployHookFrontend)
+            displayName: Trigger Render Deploy Hook for Frontend
