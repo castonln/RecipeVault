@@ -10,12 +10,12 @@ trigger:
 variables:
   - group: RecipeVault_PROD
 
+pool:
+  vmImage: 'ubuntu-latest'
+
 jobs:
   - job: BuildAndPush
     displayName: Build and Push
-    pool:
-      vmImage: 'ubuntu-latest'
-
     steps:
       - task: DockerInstaller@0
         displayName: Install Docker
