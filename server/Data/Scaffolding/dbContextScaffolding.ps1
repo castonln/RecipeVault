@@ -1,0 +1,1 @@
+dotnet ef dbcontext scaffold $Env:RV_DB_CONNECTION_STRING Npgsql.EntityFrameworkCore.PostgreSQL --schema public -o Models --context-dir Data --context AppDbContext --force

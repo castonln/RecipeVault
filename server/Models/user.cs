@@ -14,4 +14,6 @@ public partial class User
     public DateOnly CreatedAt { get; set; }
 
     public string Email { get; set; } = null!;
+
+    public virtual ICollection<Recipe> Recipes { get; set; } = new List<Recipe>();
 }

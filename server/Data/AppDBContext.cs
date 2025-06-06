@@ -16,6 +16,14 @@ public partial class AppDbContext : DbContext
     {
     }
 
+    public virtual DbSet<Ingredient> Ingredients { get; set; }
+
+    public virtual DbSet<Instruction> Instructions { get; set; }
+
+    public virtual DbSet<Recipe> Recipes { get; set; }
+
+    public virtual DbSet<RecipeIngredient> RecipeIngredients { get; set; }
+
     public virtual DbSet<User> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) => 
@@ -36,6 +44,106 @@ public partial class AppDbContext : DbContext
             .HasPostgresExtension("extensions", "uuid-ossp")
             .HasPostgresExtension("graphql", "pg_graphql")
             .HasPostgresExtension("vault", "supabase_vault");
+
+        modelBuilder.Entity<Ingredient>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("ingredients_pkey");
+
+            entity.ToTable("ingredients");
+
+            entity.HasIndex(e => e.Name, "ingredients_name_key").IsUnique();
+
+            entity.HasIndex(e => e.Name, "ingredients_name_key1").IsUnique();
+
+            entity.Property(e => e.Id)
+                .HasDefaultValueSql("gen_random_uuid()")
+                .HasColumnName("id");
+            entity.Property(e => e.FdaId).HasColumnName("fda_id");
+            entity.Property(e => e.Name)
+                .HasColumnType("character varying")
+                .HasColumnName("name");
+        });
+
+        modelBuilder.Entity<Instruction>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("instructions_pkey");
+
+            entity.ToTable("instructions");
+
+            entity.HasIndex(e => new { e.InstructionNumber, e.RecipeId }, "instructions_uk1").IsUnique();
+
+            entity.Property(e => e.Id)
+                .HasDefaultValueSql("gen_random_uuid()")
+                .HasColumnName("id");
+            entity.Property(e => e.Description)
+                .HasColumnType("character varying")
+                .HasColumnName("description");
+            entity.Property(e => e.InstructionNumber).HasColumnName("instruction_number");
+            entity.Property(e => e.RecipeId)
+                .HasDefaultValueSql("gen_random_uuid()")
+                .HasColumnName("recipe_id");
+
+            entity.HasOne(d => d.Recipe).WithMany(p => p.Instructions)
+                .HasForeignKey(d => d.RecipeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("instructions_recipe_id_fkey");
+        });
+
+        modelBuilder.Entity<Recipe>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("recipes_pkey");
+
+            entity.ToTable("recipes");
+
+            entity.Property(e => e.Id)
+                .HasDefaultValueSql("gen_random_uuid()")
+                .HasColumnName("id");
+            entity.Property(e => e.CookTime).HasColumnName("cook_time");
+            entity.Property(e => e.CreatedBy).HasColumnName("created_by");
+            entity.Property(e => e.Description)
+                .HasColumnType("character varying")
+                .HasColumnName("description");
+            entity.Property(e => e.Name)
+                .HasColumnType("character varying")
+                .HasColumnName("name");
+            entity.Property(e => e.PrepTime).HasColumnName("prep_time");
+            entity.Property(e => e.ServingSize).HasColumnName("serving_size");
+            entity.Property(e => e.Servings).HasColumnName("servings");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.Recipes)
+                .HasForeignKey(d => d.CreatedBy)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("recipes_created_by_fkey");
+        });
+
+        modelBuilder.Entity<RecipeIngredient>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("recipe_ingredients_pkey");
+
+            entity.ToTable("recipe_ingredients");
+
+            entity.HasIndex(e => new { e.IngredientId, e.RecipeId }, "recipe_ingredients_uk1").IsUnique();
+
+            entity.Property(e => e.Id)
+                .HasDefaultValueSql("gen_random_uuid()")
+                .HasColumnName("id");
+            entity.Property(e => e.IngredientId).HasColumnName("ingredient_id");
+            entity.Property(e => e.Quantity).HasColumnName("quantity");
+            entity.Property(e => e.RecipeId).HasColumnName("recipe_id");
+            entity.Property(e => e.Unit)
+                .HasColumnType("character varying")
+                .HasColumnName("unit");
+
+            entity.HasOne(d => d.Ingredient).WithMany(p => p.RecipeIngredients)
+                .HasForeignKey(d => d.IngredientId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("recipe_ingredients_ingredient_id_fkey");
+
+            entity.HasOne(d => d.Recipe).WithMany(p => p.RecipeIngredients)
+                .HasForeignKey(d => d.RecipeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("recipe_ingredients_recipe_id_fkey");
+        });
 
         modelBuilder.Entity<User>(entity =>
         {
