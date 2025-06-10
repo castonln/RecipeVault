@@ -3,10 +3,8 @@ using System.Collections.Generic;
 
 namespace server.Models;
 
-public partial class User
+public partial class User : BaseEntity
 {
-    public Guid Id { get; set; }
-
     public string Username { get; set; } = null!;
 
     public string PasswordHash { get; set; } = null!;

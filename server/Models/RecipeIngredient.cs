@@ -3,10 +3,8 @@ using System.Collections.Generic;
 
 namespace server.Models;
 
-public partial class RecipeIngredient
+public partial class RecipeIngredient : BaseEntity
 {
-    public Guid Id { get; set; }
-
     public Guid RecipeId { get; set; }
 
     public Guid IngredientId { get; set; }
