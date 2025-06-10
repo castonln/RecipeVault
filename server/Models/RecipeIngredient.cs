@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace server.Models;
+﻿namespace server.Models;
 
 public partial class RecipeIngredient : BaseEntity
 {

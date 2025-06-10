@@ -26,7 +26,11 @@ builder.Services.AddCors(options =>
 builder.Services.AddMemoryCache();
 
 // Dependency Injection for BaseEntityService
-builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<UsersService>();
+builder.Services.AddScoped<RecipesService>();
+builder.Services.AddScoped<InstructionsService>();
+builder.Services.AddScoped<IngredientsService>();
+builder.Services.AddScoped<RecipeIngredientsService>();
 
 var app = builder.Build();
 

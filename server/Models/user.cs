@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace server.Models;
+﻿namespace server.Models;
 
 public partial class User : BaseEntity
 {
@@ -13,5 +10,5 @@ public partial class User : BaseEntity
 
     public string Email { get; set; } = null!;
 
-    public virtual ICollection<Recipe> Recipes { get; set; } = new List<Recipe>();
+    public virtual ICollection<Recipe> Recipes { get; set; } = [];
 }

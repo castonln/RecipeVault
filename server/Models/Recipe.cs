@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace server.Models;
+﻿namespace server.Models;
 
 public partial class Recipe : BaseEntity
 {
@@ -21,7 +18,7 @@ public partial class Recipe : BaseEntity
 
     public virtual User CreatedByNavigation { get; set; } = null!;
 
-    public virtual ICollection<Instruction> Instructions { get; set; } = new List<Instruction>();
+    public virtual ICollection<Instruction> Instructions { get; set; } = [];
 
-    public virtual ICollection<RecipeIngredient> RecipeIngredients { get; set; } = new List<RecipeIngredient>();
+    public virtual ICollection<RecipeIngredient> RecipeIngredients { get; set; } = [];
 }

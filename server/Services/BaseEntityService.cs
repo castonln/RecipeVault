@@ -30,7 +30,7 @@ namespace server.Services
                 _cache.Set(cacheKey, items, cacheOptions);
             }
 
-            return items ?? new List<TEntity>();
+            return items ?? [];
         }
 
 

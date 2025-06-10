@@ -5,9 +5,8 @@ using server.Models;
 
 namespace server.Services
 {
-    public class UserService(AppDbContext context, IMemoryCache cache) : BaseEntityService<User>(context, cache)
+    public class UsersService(AppDbContext context, IMemoryCache cache) : BaseEntityService<User>(context, cache)
     {
         public override DbSet<User> GetDbSet() => _context.Users;
-        // Additional methods specific to UserService can be added here
     }
 }
