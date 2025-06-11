@@ -38,10 +38,15 @@ namespace server.Services
         {
             if (_cache.TryGetValue(cacheKey, out List<TEntity>? items) && items is not null)
             {
-                return items.FirstOrDefault(e => e.Id.Equals(id));
+                var entity = items.FirstOrDefault(e => e.Id.Equals(id));
+                if (entity is not null)
+                {
+                    return entity;
+                }
             }
 
-            return await GetDbSet().FindAsync(id);
+            var dbEntity = await GetDbSet().FindAsync(id);
+            return dbEntity ?? null;
         }
 
 
