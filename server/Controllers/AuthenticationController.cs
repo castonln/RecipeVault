@@ -1,7 +1,10 @@
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
 using server.Data.DTO;
 using server.Models;
 using server.Services;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace server.Controllers
 {
@@ -24,6 +27,29 @@ namespace server.Controllers
             }
             // Here you would typically generate a JWT token or session for the user  
             return Ok(existingUser.Id);
+        }
+
+        [HttpPost("signup")]
+        public async Task<IActionResult> SignUp([FromBody] SignUp signup)
+        {
+            if (signup == null || string.IsNullOrEmpty(signup.Username) || string.IsNullOrEmpty(signup.Email) || string.IsNullOrEmpty(signup.Password))
+            {
+                return BadRequest("Invalid signup request.");
+            }
+            List<User> users = await usrSrvc.GetFromCacheOrDbAsync();
+            if (users.Any(u => u.Email == signup.Email || u.Username == signup.Username))
+            {
+                return UnprocessableEntity("User already exists with this email or username.");
+            }
+            var newUser = new User
+            {
+                Username = signup.Username,
+                Email = signup.Email,
+                PasswordHash = authSrvc.HashPassword(signup.Password),
+                CreatedAt = DateOnly.FromDateTime(DateTime.UtcNow)
+            };
+            await usrSrvc.CreateAndUpdateCacheAsync(newUser);
+            return Ok(newUser.Id);
         }
     }
 }
