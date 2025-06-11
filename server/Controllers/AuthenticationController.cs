@@ -1,10 +1,7 @@
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Hosting;
 using server.Data.DTO;
 using server.Models;
 using server.Services;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace server.Controllers
 {
@@ -25,7 +22,6 @@ namespace server.Controllers
             {
                 return new UnauthorizedObjectResult("Invalid username or password.");
             }
-            // Here you would typically generate a JWT token or session for the user  
             return Ok(existingUser.Id);
         }
 
