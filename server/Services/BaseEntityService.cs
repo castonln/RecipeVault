@@ -67,8 +67,10 @@ namespace server.Services
 
         public async Task<TEntity?> UpdateAndRefreshCacheAsync(Guid id, TEntity updatedEntity)
         {
-            // Try to get the entity from cache or DB
-            var entity = await GetByIdFromCacheOrDbAsync(id);
+            var dbSet = GetDbSet();
+
+            // Fetch from the database for tracking
+            var entity = await dbSet.FindAsync(id);
             if (entity is null)
                 return null;
 
