@@ -3,7 +3,7 @@
 namespace server.Data.DTO
 {
     [Serializable]
-    public class SimpleRecipeData()
+    public class ComplexRecipeDTO()
     {
         [JsonPropertyName("id")]
         public Guid Id { get; set; }
@@ -28,5 +28,11 @@ namespace server.Data.DTO
 
         [JsonPropertyName("createdBy")]
         public Guid CreatedBy { get; set; }
+
+        [JsonPropertyName("instructions")]
+        public List<InstructionDTO> Instructions { get; set; } = [];
+
+        [JsonPropertyName("recipeIngredients")]
+        public List<RecipeIngredientDTO> RecipeIngredients { get; set; } = [];
     }
 }
