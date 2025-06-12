@@ -61,16 +61,19 @@ namespace server.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateRecipe([FromQuery] Guid userId, [FromBody] CreateRecipe recipe)
         {
+            // Validate input
             if (recipe == null)
                 return UnprocessableEntity("Invalid recipe data.");
 
             if (userId == Guid.Empty)
                 return UnprocessableEntity("userId must be passed.");
 
+            // Check if user exists
             var user = await usrSrvc.GetByIdFromCacheOrDbAsync(userId);
             if (user == null)
                 return UnprocessableEntity("No user exists with the provided userId.");
 
+            // Create recipe
             var newRecipe = new Recipe
             {
                 Name = recipe.Name,
@@ -82,10 +85,55 @@ namespace server.Controllers
                 CreatedBy = userId
             };
 
+            // Update in DB and refresh cache
             var created = await rcpeSrvc.CreateAndUpdateCacheAsync(newRecipe);
             var resultDto = rcpeSrvc.MapToSimpleDTO(created);
 
             return CreatedAtAction(nameof(GetRecipe), new { recipeId = resultDto.Id, userId }, resultDto);
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> ModifyRecipe([FromQuery] Guid userId, [FromBody] SimpleRecipeDTO recipe)
+        {
+            // Validate input
+            if (recipe == null)
+                return UnprocessableEntity("Invalid recipe data.");
+
+            if (recipe.CreatedBy == Guid.Empty)
+                return UnprocessableEntity("createdBy must be provided.");
+
+            if (recipe.Id == Guid.Empty)
+                return UnprocessableEntity("Recipe id must be provided.");
+
+            // Check if user exists
+            var user = await usrSrvc.GetByIdFromCacheOrDbAsync(userId);
+            if (user == null)
+                return UnprocessableEntity("No user exists with the provided userId.");
+
+            // Check if recipe exists
+            var existingRecipe = await rcpeSrvc.GetByIdFromCacheOrDbAsync(recipe.Id);
+            if (existingRecipe == null)
+                return UnprocessableEntity("No existing recipe with that id.");
+
+            // Check if recipe belongs to user
+            if (existingRecipe.CreatedBy != userId || recipe.CreatedBy != userId)
+                return UnprocessableEntity("Recipe does not belong to the specified user.");
+
+            // Update recipe fields
+            existingRecipe.Name = recipe.Name;
+            existingRecipe.Description = recipe.Description;
+            existingRecipe.Servings = recipe.Servings;
+            existingRecipe.ServingSize = recipe.ServingSize;
+            existingRecipe.PrepTime = recipe.PrepTime;
+            existingRecipe.CookTime = recipe.CookTime;
+
+            // Update in DB and refresh cache
+            var updated = await rcpeSrvc.UpdateAndRefreshCacheAsync(existingRecipe.Id, existingRecipe);
+            if (updated == null)
+                return UnprocessableEntity("Failed to update recipe.");
+
+            var resultDto = rcpeSrvc.MapToSimpleDTO(updated);
+            return Ok(resultDto);
         }
     }
 }
