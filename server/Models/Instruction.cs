@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿namespace server.Models;
 
-namespace server.Models;
-
-public partial class Instruction
+public partial class Instruction : BaseEntity
 {
-    public Guid Id { get; set; }
-
     public decimal InstructionNumber { get; set; }
 
     public Guid RecipeId { get; set; }

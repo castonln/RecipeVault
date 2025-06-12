@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿namespace server.Models;
 
-namespace server.Models;
-
-public partial class User
+public partial class User : BaseEntity
 {
-    public Guid Id { get; set; }
-
     public string Username { get; set; } = null!;
 
     public string PasswordHash { get; set; } = null!;
@@ -15,5 +10,5 @@ public partial class User
 
     public string Email { get; set; } = null!;
 
-    public virtual ICollection<Recipe> Recipes { get; set; } = new List<Recipe>();
+    public virtual ICollection<Recipe> Recipes { get; set; } = [];
 }
