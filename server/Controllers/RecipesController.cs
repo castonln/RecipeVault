@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using server.Data.DTO;
+using server.Models;
 using server.Services;
 
 namespace server.Controllers
@@ -54,6 +56,36 @@ namespace server.Controllers
 
             // Optionally, map to a DTO if you want to control the output structure
             return Ok(await rcpeSrvc.MapToComplexDTO(recipe));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateRecipe([FromQuery] Guid userId, [FromBody] CreateRecipe recipe)
+        {
+            if (recipe == null)
+                return UnprocessableEntity("Invalid recipe data.");
+
+            if (userId == Guid.Empty)
+                return UnprocessableEntity("userId must be passed.");
+
+            var user = await usrSrvc.GetByIdFromCacheOrDbAsync(userId);
+            if (user == null)
+                return UnprocessableEntity("No user exists with the provided userId.");
+
+            var newRecipe = new Recipe
+            {
+                Name = recipe.Name,
+                Description = recipe.Description,
+                Servings = recipe.Servings,
+                ServingSize = recipe.ServingSize,
+                PrepTime = recipe.PrepTime,
+                CookTime = recipe.CookTime,
+                CreatedBy = userId
+            };
+
+            var created = await rcpeSrvc.CreateAndUpdateCacheAsync(newRecipe);
+            var resultDto = rcpeSrvc.MapToSimpleDTO(created);
+
+            return CreatedAtAction(nameof(GetRecipe), new { recipeId = resultDto.Id, userId }, resultDto);
         }
     }
 }
