@@ -11,7 +11,7 @@ const SignIn = () => {
             direction="row"
             justifyContent="center"
             alignItems="center"
-            sx={{ width: 1, height: "100vh" }}>
+            sx={{height: "100vh" }}>
             <Paper elevation={5}>
                 <Box component="form" onSubmit={handleSubmit} noValidate margin="40px">
                     <Typography
