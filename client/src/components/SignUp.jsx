@@ -2,6 +2,7 @@ import { Stack, Paper, Box, TextField, Typography, Button } from "@mui/material"
 import { NavLink } from "react-router";
 import { ROUTES } from "../utils/router";
 
+//test sync
 const SignUp = () => {
     const handleSubmit = () => {
         console.log("Submit")
