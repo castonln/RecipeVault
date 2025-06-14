@@ -1,5 +1,6 @@
 import { Stack, Paper, Box, TextField, Typography, Button } from "@mui/material";
 import { NavLink } from "react-router";
+import { ROUTES } from "../utils/router";
 
 const SignIn = () => {
     const handleSubmit = () => {
@@ -12,7 +13,7 @@ const SignIn = () => {
             justifyContent="center"
             alignItems="center"
             sx={{height: "100vh" }}>
-            <Paper elevation={5}>
+            <Paper elevation={5} sx={{width: "620px"}}>
                 <Box component="form" onSubmit={handleSubmit} noValidate margin="40px">
                     <Typography
                         component="h1"
@@ -33,7 +34,7 @@ const SignIn = () => {
                         marginTop: "20px",
                         textAlign: "center",
                     }}>
-                        Don't have an account? <NavLink to={"/signup"}>Sign up</NavLink>
+                        Don't have an account? <NavLink to={ROUTES.SIGNUP.path}>Sign up</NavLink>
                     </Typography>
                 </Box>
             </Paper>

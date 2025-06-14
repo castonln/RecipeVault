@@ -15,7 +15,7 @@ const SignUp = () => {
             alignItems="center"
             sx={{height: "100vh" }}>
 
-            <Paper elevation={5}>
+            <Paper elevation={5} sx={{width: "620px"}}>
                 <Box component="form" onSubmit={handleSubmit} noValidate margin="40px">
                     <Typography
                         component="h1"
@@ -36,7 +36,7 @@ const SignUp = () => {
                         marginTop: "20px",
                         textAlign: "center",
                     }}>
-                        Already have an account? <NavLink to={"/signin"}>Sign in</NavLink>
+                        Already have an account? <NavLink to={ROUTES.SIGNIN.path}>Sign in</NavLink>
                     </Typography>
                 </Box>
             </Paper>

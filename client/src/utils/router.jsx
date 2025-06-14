@@ -4,7 +4,8 @@ import RecipeBook from "../components/RecipeBook";
 import RequiresAuth from "./RequiresAuth";
 import SignUp from "../components/SignUp";
 
-export const ROUTES = [
+export const ROUTES = {
+  RECIPEBOOK:
   {
     path: "/",
     element:
@@ -12,19 +13,21 @@ export const ROUTES = [
         <RecipeBook />
       </RequiresAuth>
   },
+  SIGNUP:
   {
     path: "/signup",
     element: <SignUp />
   },
+  SIGNIN:
   {
     path: "/signin",
     element: <SignIn />,
   },
-]
+}
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
-    ROUTES.map((route) => (
+    Object.values(ROUTES).map((route) => (
       <Route key={route.path} path={route.path} element={route.element} />
     ))
   )
