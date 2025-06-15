@@ -18,6 +18,6 @@ namespace server.Data.DTO
         public string Unit { get; set; } = null!;
 
         [JsonPropertyName("ingredient")]
-        public IngredientDTO Ingredient { get; set; } = null!;
+        public IngredientDTO? Ingredient { get; set; } = null!;
     }
 }
