@@ -3,11 +3,8 @@
 namespace server.Data.DTO
 {
     [Serializable]
-    public class RecipeIngredientDTO()
+    public class RecipeIngredientDTO() : BaseEntityDTO
     {
-        [JsonPropertyName("id")]
-        public Guid Id { get; set; }
-
         [JsonPropertyName("recipeId")]
         public Guid RecipeId { get; set; }
 

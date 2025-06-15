@@ -1,13 +1,21 @@
 using Microsoft.AspNetCore.Mvc;
-using server.Models;
 using server.Services;
 
 namespace server.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class IngredientsController(IngredientsService ingrdntSrvc) : BaseEntityController<Ingredient>()
+    public class IngredientsController(IngredientsService ingrdntSrvc) : ControllerBase
     {
-        public override BaseEntityService<Ingredient> GetDbService() => ingrdntSrvc;
+        [HttpGet]
+        public async Task<IActionResult> GetIngredients()
+        {
+            var ingredients = await ingrdntSrvc.GetFromCacheOrDbAsync();
+            if (ingredients is null || ingredients.Count == 0)
+            {
+                return NotFound("No ingredients found.");
+            }
+            return Ok(ingredients.Select(ingrdntSrvc.MapToDTO));
+        }
     }
 }

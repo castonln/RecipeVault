@@ -6,11 +6,11 @@ using server.Models;
 
 namespace server.Services
 {
-    public class IngredientsService(AppDbContext context, IMemoryCache cache) : BaseEntityService<Ingredient>(context, cache)
+    public class IngredientsService(AppDbContext context, IMemoryCache cache) : BaseEntityService<Ingredient, IngredientDTO>(context, cache)
     {
         public override DbSet<Ingredient> GetDbSet() => _context.Ingredients;
 
-        public IngredientDTO MapToDTO(Ingredient ingredient)
+        public override IngredientDTO MapToDTO(Ingredient ingredient)
         {
             return new IngredientDTO
             {
@@ -20,11 +20,11 @@ namespace server.Services
             };
         }
 
-        public Ingredient MapToEntity(IngredientDTO ingredient)
+        public override Ingredient MapToEntity(IngredientDTO ingredient)
         {
             return new Ingredient
             {
-                Id = ingredient.Id,
+                Id = ingredient.Id ?? throw new Exception("entityId must not be null"),
                 Name = ingredient.Name,
                 FdaId = ingredient.FdaId
             };

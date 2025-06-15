@@ -24,7 +24,7 @@ namespace server.Controllers
             var recipes = await rcpeSrvc.GetFromCacheOrDbAsync();
             var userRecipes = recipes.Where(r => r.CreatedBy == userId).ToList();
 
-            return Ok(userRecipes.Select(x => rcpeSrvc.MapToSimpleDTO(x)).ToList());
+            return Ok(userRecipes.Select(x => rcpeSrvc.MapToDTO(x)).ToList());
         }
 
         [HttpGet("{recipeId}")]
@@ -87,7 +87,7 @@ namespace server.Controllers
 
             // Update in DB and refresh cache
             var created = await rcpeSrvc.CreateAndUpdateCacheAsync(newRecipe);
-            var resultDto = rcpeSrvc.MapToSimpleDTO(created);
+            var resultDto = rcpeSrvc.MapToDTO(created);
 
             return CreatedAtAction(nameof(GetRecipe), new { recipeId = resultDto.Id, userId }, resultDto);
         }
@@ -111,7 +111,7 @@ namespace server.Controllers
                 return UnprocessableEntity("No existing user with that id.");
 
             // Check if recipe exists
-            var existingRecipe = await rcpeSrvc.GetByIdFromCacheOrDbAsync(recipe.Id);
+            var existingRecipe = await rcpeSrvc.GetByIdFromCacheOrDbAsync(recipe.Id ?? throw new Exception("entityId must not be null."));
             if (existingRecipe == null)
                 return UnprocessableEntity("No existing recipe with that id.");
 
@@ -121,11 +121,11 @@ namespace server.Controllers
 
             // Update in DB and refresh cache
             var updatedEntity = rcpeSrvc.MapToEntity(recipe);
-            var updated = await rcpeSrvc.UpdateAndRefreshCacheAsync(recipe.Id, updatedEntity);
+            var updated = await rcpeSrvc.UpdateAndRefreshCacheAsync(recipe.Id ?? throw new Exception("entityId must not be null."), updatedEntity);
             if (updated == null)
                 return UnprocessableEntity("Failed to update recipe.");
 
-            var resultDto = rcpeSrvc.MapToSimpleDTO(updated);
+            var resultDto = rcpeSrvc.MapToDTO(updated);
             return Ok(resultDto);
         }
 
@@ -158,7 +158,7 @@ namespace server.Controllers
             if (deleted == null)
                 return UnprocessableEntity("Failed to delete recipe.");
 
-            var resultDto = rcpeSrvc.MapToSimpleDTO(deleted);
+            var resultDto = rcpeSrvc.MapToDTO(deleted);
             return Ok(resultDto);
         }
     }

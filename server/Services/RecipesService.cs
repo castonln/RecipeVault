@@ -6,11 +6,11 @@ using server.Models;
 
 namespace server.Services
 {
-    public class RecipesService(InstructionsService instrctnSrvc, RecipeIngredientsService rcpIngrdntSrvc, AppDbContext context, IMemoryCache cache) : BaseEntityService<Recipe>(context, cache)
+    public class RecipesService(InstructionsService instrctnSrvc, RecipeIngredientsService rcpIngrdntSrvc, AppDbContext context, IMemoryCache cache) : BaseEntityService<Recipe, SimpleRecipeDTO>(context, cache)
     {
         public override DbSet<Recipe> GetDbSet() => _context.Recipes;
 
-        public SimpleRecipeDTO MapToSimpleDTO(Recipe recipe)
+        public override SimpleRecipeDTO MapToDTO(Recipe recipe)
         {
             return new SimpleRecipeDTO
             {
@@ -25,11 +25,11 @@ namespace server.Services
             };
         }
 
-        public Recipe MapToEntity(SimpleRecipeDTO recipe)
+        public override Recipe MapToEntity(SimpleRecipeDTO recipe)
         {
             return new Recipe
             {
-                Id = recipe.Id,
+                Id = recipe.Id ?? throw new Exception("entityId must not be null"),
                 Name = recipe.Name,
                 Description = recipe.Description,
                 Servings = recipe.Servings,
@@ -50,11 +50,9 @@ namespace server.Services
 
             // Get recipe ingredients from cache or database
             var recipeIngredientsEntities = await rcpIngrdntSrvc.GetFromCacheOrDbAsync();
-            List<RecipeIngredientDTO> recipeIngredients = [.. (await Task.WhenAll(
-                recipeIngredientsEntities
+            List<RecipeIngredientDTO> recipeIngredients = recipeIngredientsEntities
                     .Where(ri => ri.RecipeId == recipe.Id)
-                    .Select(ri => rcpIngrdntSrvc.MapToDTO(ri))
-            ))];
+                    .Select(ri => rcpIngrdntSrvc.MapToDTO(ri)).ToList();
 
             return new ComplexRecipeDTO
             {
@@ -71,11 +69,11 @@ namespace server.Services
             };
         }
 
-        public Recipe MapToEntity(ComplexRecipeDTO recipe)
+        public Recipe MapToEntityFromComplexRecipe(ComplexRecipeDTO recipe)
         {
             return new Recipe
             {
-                Id = recipe.Id,
+                Id = recipe.Id ?? throw new Exception("entityId must not be null."),
                 Name = recipe.Name,
                 Description = recipe.Description,
                 Servings = recipe.Servings,
