@@ -8,9 +8,13 @@ import {
   Select,
   MenuItem,
   FormControl,
+  Stack,
+  Divider,
+  Grid,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import CheckIcon from '@mui/icons-material/Check';
+import { ArrowBack, Delete, Share } from '@mui/icons-material';
 
 const RecipeDetails = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -43,127 +47,180 @@ const RecipeDetails = () => {
   const timeOptions = ['5 mins', '10 mins', '15 mins', '20 mins', '30 mins', '45 mins', '1 hr'];
 
   return (
-    <Paper elevation={3} sx={{ padding: 3, position: 'relative', textAlign: 'center', borderRadius: 2 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
-        <Box sx={{ flex: 1 }}>
-          {isEditing ? (
-            <TextField
-              label="Title"
-              variant="standard"
-              value={tempState.title}
-              onChange={(e) => setTempState({ ...tempState, title: e.target.value })}
-              sx={(theme) => ({
-                width: '400px',
-                // match Typography h3 styles
-                '& .MuiInputBase-input': {
-                  fontSize: theme.typography.h3.fontSize,
-                  fontWeight: theme.typography.h3.fontWeight,
-                  lineHeight: theme.typography.h3.lineHeight,
-                  fontFamily: theme.typography.h3.fontFamily,
-                  padding: 0,
-                  // To roughly match Typography height
-                  height: '1.2em',
-                  minHeight: '40px',
-                  boxSizing: 'content-box',
-                },
-                // reduce bottom margin below label
-                '& .MuiInputLabel-root': {
-                  fontSize: theme.typography.body2.fontSize,
-                },
-              })}
-            />
-          ) : (
-            <Typography variant="h3" noWrap sx={{ lineHeight: 1.2 }}>
-              {title}
-            </Typography>
-          )}
-        </Box>
-        <Box sx={{ position: 'absolute', right: 0 }}>
-          <IconButton onClick={isEditing ? handleSaveClick : handleEditClick}>
+    <Box sx={(theme) => ({
+      padding: 2.5,
+      backgroundColor: theme.palette.primary.main,
+      color: 'white',
+      position: 'relative',
+      textAlign: 'center',
+      boxShadow: theme.shadows[3]
+    })}>
+      <Stack direction='row' sx={{ justifyContent: 'space-between', marginBottom: 2, }}>
+        <IconButton onClick={() => { }} sx={{ color: 'white' }}>
+          <ArrowBack />
+        </IconButton>
+
+        <Stack direction='row'>
+          <IconButton onClick={isEditing ? handleSaveClick : handleEditClick} sx={{ color: 'white' }}>
             {isEditing ? <CheckIcon /> : <EditIcon />}
           </IconButton>
-        </Box>
-      </Box>
+          <IconButton sx={{ color: 'white' }}>
+            <Share />
+          </IconButton>
+          <IconButton sx={{ color: 'white' }}>
+            <Delete />
+          </IconButton>
+        </Stack>
+      </Stack>
 
-      <Box sx={{ marginTop: 2 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative', mb: 1 }}>
         {isEditing ? (
           <TextField
-            label="Description"
+            variant="standard"
+            label="Recipe Title"
+            value={tempState.title}
+            onChange={(e) => setTempState((prev) => ({ ...prev, title: e.target.value }))}
+            sx={{
+              maxWidth: '500px', textAlign: 'center',
+              '& .MuiInputLabel-root': {
+                color: 'rgba(255, 255, 255, 0.8)',
+              },
+            }}
+            slotProps={{
+              input: {
+                style: {
+                  textAlign: 'center',
+                  fontSize: '1.8rem',
+                  fontWeight: 'bold',
+                  color: 'white',
+                },
+              },
+            }}
+          />
+        ) : (
+          <Typography variant="h4" fontWeight='bold' sx={{ lineHeight: 1.2 }}>
+            {title}
+          </Typography>
+        )}
+      </Box>
+
+
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mb: 3 }}>
+        {isEditing ? (
+          <TextField
+            variant="standard"
             multiline
-            minRows={3}
-            fullWidth
+            label="Description"
             value={tempState.description}
-            onChange={(e) => setTempState({ ...tempState, description: e.target.value })}
+            onChange={(e) => setTempState((prev) => ({ ...prev, description: e.target.value }))}
+            sx={{
+              maxWidth: '500px',
+              '& .MuiInputLabel-root': {
+                color: 'rgba(255, 255, 255, 0.8)',
+              },
+            }}
+            slotProps={{
+              input: { style: { color: 'white' } },
+            }}
           />
         ) : (
           <Typography variant="body1">{description}</Typography>
         )}
       </Box>
 
-      <Box sx={{ display: 'flex', justifyContent: 'center', gap: 4, marginTop: 3 }}>
+
+      <Grid
+        container
+        spacing={4}
+        rowSpacing={1}
+        sx={{
+          justifyContent: "center",
+          alignItems: "center",
+          marginBottom: 2,
+        }}
+      >
         <Box>
-          <Typography variant="subtitle2" color="text.secondary">
-            Prep Time:
+          <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontWeight: 500 }}>
+            Prep Time
           </Typography>
           {isEditing ? (
-            <FormControl variant="standard" fullWidth>
+            <FormControl variant="standard" sx={{ minWidth: 100 }}>
               <Select
                 value={tempState.prepTime}
-                onChange={(e) => setTempState({ ...tempState, prepTime: e.target.value })}
+                onChange={(e) => setTempState((prev) => ({ ...prev, prepTime: e.target.value }))}
+                sx={{ color: 'white' }}
               >
                 {timeOptions.map((option) => (
-                  <MenuItem key={option} value={option}>
-                    {option}
-                  </MenuItem>
+                  <MenuItem key={option} value={option}>{option}</MenuItem>
                 ))}
               </Select>
             </FormControl>
           ) : (
-            <Typography>{prepTime}</Typography>
+            <Typography variant="h6" sx={{ fontWeight: 700, marginBottom: 0.5 }}>
+              {prepTime}
+            </Typography>
           )}
         </Box>
 
         <Box>
-          <Typography variant="subtitle2" color="text.secondary">
-            Cook Time:
+          <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontWeight: 500 }}>
+            Cook Time
           </Typography>
           {isEditing ? (
-            <FormControl variant="standard" fullWidth>
+            <FormControl variant="standard" sx={{ minWidth: 100 }}>
               <Select
                 value={tempState.cookTime}
-                onChange={(e) => setTempState({ ...tempState, cookTime: e.target.value })}
+                onChange={(e) => setTempState((prev) => ({ ...prev, cookTime: e.target.value }))}
+                sx={{ color: 'white' }}
               >
                 {timeOptions.map((option) => (
-                  <MenuItem key={option} value={option}>
-                    {option}
-                  </MenuItem>
+                  <MenuItem key={option} value={option}>{option}</MenuItem>
                 ))}
               </Select>
             </FormControl>
           ) : (
-            <Typography>{cookTime}</Typography>
+            <Typography variant="h6" sx={{ fontWeight: 700, marginBottom: 0.5 }}>
+              {cookTime}
+            </Typography>
           )}
         </Box>
 
+        <Box
+          sx={{
+            flexBasis: '100%',
+            height: 0,
+            display: { sm: 'none' }
+          }}
+        />
+
         <Box>
-          <Typography variant="subtitle2" color="text.secondary">
-            Calories:
+          <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontWeight: 500 }}>
+            Calories
+          </Typography>
+          <Typography variant="h6" sx={{ fontWeight: 700, marginBottom: 0.5 }}>
+            320
           </Typography>
         </Box>
 
         <Box>
-          <Typography variant="subtitle2" color="text.secondary">
-            Protein:
+          <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontWeight: 500 }}>
+            Protein
+          </Typography>
+          <Typography variant="h6" sx={{ fontWeight: 700, marginBottom: 0.5 }}>
+            12g
           </Typography>
         </Box>
 
         <Box>
-          <Typography variant="subtitle2" color="text.secondary">
-            Carbs:
+          <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontWeight: 500 }}>
+            Carbs
+          </Typography>
+          <Typography variant="h6" sx={{ fontWeight: 700, marginBottom: 0.5 }}>
+            45g
           </Typography>
         </Box>
-      </Box>
-    </Paper>
+      </Grid>
+    </Box>
   );
 };
 

@@ -7,11 +7,13 @@ import RecipeInstructions from "./RecipeInstructions";
 const RecipePage = () => {
     let { recipeId } = useParams();
     return ( 
-        <Stack direction="column" spacing={2} sx={{padding: "20px"}}>
+        <>
             <RecipeDetails />
-            <RecipeIngredients />
-            <RecipeInstructions />
-        </Stack>
+            <Stack direction="column" spacing={2} sx={{padding: "20px"}}>
+                <RecipeIngredients />
+                <RecipeInstructions />
+            </Stack>
+        </>
      );
 }
  

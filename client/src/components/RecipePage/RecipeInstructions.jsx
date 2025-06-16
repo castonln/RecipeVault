@@ -90,6 +90,7 @@ const RecipeInstructions = () => {
                             px: 2,
                             py: 1.5,
                             userSelect: 'none',
+                            mb: 1
                           }}
                         >
                           {/* Step Number */}
