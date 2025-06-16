@@ -6,31 +6,36 @@ using server.Models;
 
 namespace server.Services
 {
-    public class RecipeIngredientsService(IngredientsService ingrdntSrvc, AppDbContext context, IMemoryCache cache) : BaseEntityService<RecipeIngredient>(context, cache)
+    public class RecipeIngredientsService(IngredientsService ingrdntSrvc, AppDbContext context, IMemoryCache cache) : BaseEntityService<RecipeIngredient, RecipeIngredientDTO>(context, cache)
     {
         public override DbSet<RecipeIngredient> GetDbSet() => _context.RecipeIngredients;
 
-        public async Task<RecipeIngredientDTO> MapToDTO(RecipeIngredient recipeIngredient)
+        public override RecipeIngredientDTO MapToDTO(RecipeIngredient entity)
         {
-            Ingredient? ingredient = await ingrdntSrvc.GetByIdFromCacheOrDbAsync(recipeIngredient.IngredientId);
-            if (ingredient == null) throw new ArgumentException("Ingredient not found for the given RecipeIngredient.");
-
-            return new RecipeIngredientDTO
-            {
-                Id = recipeIngredient.Id,
-                RecipeId = recipeIngredient.RecipeId,
-                IngredientId = recipeIngredient.IngredientId,
-                Quantity = recipeIngredient.Quantity,
-                Unit = recipeIngredient.Unit,
-                Ingredient = ingrdntSrvc.MapToDTO(ingredient)
-            };
+            return MapToDTOAsync(entity).GetAwaiter().GetResult() ?? throw new ArgumentException("RecipeIngredient not found for the given entity.");
         }
 
-        public RecipeIngredient MapToEntity(RecipeIngredientDTO recipeIngredient)
+        public async Task<RecipeIngredientDTO> MapToDTOAsync(RecipeIngredient recipeIngredient)
+        {
+            Ingredient? ingredient = await ingrdntSrvc.GetByIdFromCacheOrDbAsync(recipeIngredient.IngredientId);
+            return ingredient == null
+                ? throw new ArgumentException("Ingredient not found for the given RecipeIngredient.")
+                : new RecipeIngredientDTO
+                {
+                    Id = recipeIngredient.Id,
+                    RecipeId = recipeIngredient.RecipeId,
+                    IngredientId = recipeIngredient.IngredientId,
+                    Quantity = recipeIngredient.Quantity,
+                    Unit = recipeIngredient.Unit,
+                    Ingredient = ingrdntSrvc.MapToDTO(ingredient)
+                };
+        }
+
+        public override RecipeIngredient MapToEntity(RecipeIngredientDTO recipeIngredient)
         {
             return new RecipeIngredient
             {
-                Id = recipeIngredient.Id,
+                Id = recipeIngredient.Id ?? throw new Exception("entityId must not be null"),
                 RecipeId = recipeIngredient.RecipeId,
                 IngredientId = recipeIngredient.IngredientId,
                 Quantity = recipeIngredient.Quantity,

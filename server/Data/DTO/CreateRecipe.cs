@@ -3,7 +3,7 @@
 namespace server.Data.DTO
 {
     [Serializable]
-    public class SimpleRecipeDTO() : BaseEntityDTO
+    public class CreateRecipe()
     {
         [JsonPropertyName("name")]
         public string Name { get; set; } = null!;
@@ -22,8 +22,5 @@ namespace server.Data.DTO
 
         [JsonPropertyName("cookTime")]
         public decimal? CookTime { get; set; }
-
-        [JsonPropertyName("createdBy")]
-        public Guid CreatedBy { get; set; }
     }
 }

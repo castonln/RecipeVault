@@ -3,11 +3,8 @@
 namespace server.Data.DTO
 {
     [Serializable]
-    public class InstructionDTO()
+    public class InstructionDTO() : BaseEntityDTO
     {
-        [JsonPropertyName("id")]
-        public Guid Id { get; set; }
-
         [JsonPropertyName("instructionNumber")]
         public decimal InstructionNumber { get; set; }
 
