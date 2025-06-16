@@ -15,8 +15,11 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import CheckIcon from '@mui/icons-material/Check';
 import { ArrowBack, Delete, Share } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '../../utils/router.jsx';
 
 const RecipeDetails = () => {
+  const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
 
   const [title, setTitle] = useState('My Awesome Recipe');
@@ -56,7 +59,7 @@ const RecipeDetails = () => {
       boxShadow: theme.shadows[3]
     })}>
       <Stack direction='row' sx={{ justifyContent: 'space-between', marginBottom: 2, }}>
-        <IconButton onClick={() => { }} sx={{ color: 'white' }}>
+        <IconButton onClick={() => {navigate(ROUTES.RECIPEBOOK.path)}} sx={{ color: 'white' }}>
           <ArrowBack />
         </IconButton>
 
