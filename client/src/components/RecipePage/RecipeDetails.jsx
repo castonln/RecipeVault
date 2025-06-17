@@ -1,29 +1,18 @@
-import { useState } from 'react';
-import {
-  Paper,
-  Typography,
-  IconButton,
-  TextField,
-  Box,
-  Select,
-  MenuItem,
-  FormControl,
-  Stack,
-  Divider,
-  Grid,
-} from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import CheckIcon from '@mui/icons-material/Check';
 import { ArrowBack, Delete, Share } from '@mui/icons-material';
+import CheckIcon from '@mui/icons-material/Check';
+import EditIcon from '@mui/icons-material/Edit';
+import { Box, FormControl, Grid, IconButton, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../../utils/router.jsx';
 
 const RecipeDetails = () => {
   const navigate = useNavigate();
+
   const [isEditing, setIsEditing] = useState(false);
 
-  const [title, setTitle] = useState('My Awesome Recipe');
-  const [description, setDescription] = useState("This is a tasty recipe that you'll love.");
+  const [title, setTitle] = useState('My Recipe');
+  const [description, setDescription] = useState("This is my favorite meal.");
   const [prepTime, setPrepTime] = useState('15 mins');
   const [cookTime, setCookTime] = useState('30 mins');
 
@@ -58,8 +47,10 @@ const RecipeDetails = () => {
       textAlign: 'center',
       boxShadow: theme.shadows[3]
     })}>
+
+      {/* Top Menu */}
       <Stack direction='row' sx={{ justifyContent: 'space-between', marginBottom: 2, }}>
-        <IconButton onClick={() => {navigate(ROUTES.RECIPEBOOK.path)}} sx={{ color: 'white' }}>
+        <IconButton onClick={() => { navigate(ROUTES.RECIPEBOOK.path) }} sx={{ color: 'white' }}>
           <ArrowBack />
         </IconButton>
 
@@ -76,6 +67,7 @@ const RecipeDetails = () => {
         </Stack>
       </Stack>
 
+      {/* Title */}
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative', mb: 1 }}>
         {isEditing ? (
           <TextField
@@ -107,7 +99,7 @@ const RecipeDetails = () => {
         )}
       </Box>
 
-
+      {/* Description */}
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mb: 3 }}>
         {isEditing ? (
           <TextField
@@ -142,6 +134,8 @@ const RecipeDetails = () => {
           marginBottom: 2,
         }}
       >
+
+        {/* Prep Time */}
         <Box>
           <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontWeight: 500 }}>
             Prep Time
@@ -165,6 +159,7 @@ const RecipeDetails = () => {
           )}
         </Box>
 
+        {/* Cook Time */}
         <Box>
           <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontWeight: 500 }}>
             Cook Time
@@ -196,6 +191,7 @@ const RecipeDetails = () => {
           }}
         />
 
+        {/* Calories */}
         <Box>
           <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontWeight: 500 }}>
             Calories
@@ -205,6 +201,7 @@ const RecipeDetails = () => {
           </Typography>
         </Box>
 
+        {/* Protein */}
         <Box>
           <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontWeight: 500 }}>
             Protein
@@ -214,6 +211,7 @@ const RecipeDetails = () => {
           </Typography>
         </Box>
 
+        {/* Carbs */}
         <Box>
           <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontWeight: 500 }}>
             Carbs
