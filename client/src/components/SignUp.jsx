@@ -2,7 +2,6 @@ import { Stack, Paper, Box, TextField, Typography, Button } from "@mui/material"
 import { NavLink } from "react-router";
 import { ROUTES } from "../utils/router";
 
-//test sync
 const SignUp = () => {
     const handleSubmit = () => {
         console.log("Submit")
@@ -28,6 +27,7 @@ const SignUp = () => {
                         Sign Up
                     </Typography>
                     <TextField placeholder="Username" fullWidth required autoFocus sx={{ marginBottom: "20px" }} />
+                    <TextField placeholder="Email" fullWidth required sx={{ marginBottom: "20px" }} />
                     <TextField placeholder="Password" fullWidth required type="password" sx={{ marginBottom: "20px" }} />
                     <TextField placeholder="Renter Password" fullWidth required type="password" sx={{ marginBottom: "20px" }} />
                     <Button type="submit" variant="contained" fullWidth>Sign Up</Button>
