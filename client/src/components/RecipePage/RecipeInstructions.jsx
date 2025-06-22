@@ -1,20 +1,16 @@
-import { useState } from 'react';
-import {
-  Paper,
-  Typography,
-  IconButton,
-  TextField,
-  Box
-} from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
+import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
+import AddIcon from '@mui/icons-material/Add';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import DragHandleIcon from '@mui/icons-material/DragHandle';
-import AddIcon from '@mui/icons-material/Add';
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import EditIcon from '@mui/icons-material/Edit';
+import { Box, IconButton, Paper, TextField, Typography } from '@mui/material';
+import { useState } from 'react';
 
 const RecipeInstructions = () => {
   const [isEditing, setIsEditing] = useState(false);
+
+  {/* Temporary Instructions (will retrieve from database */}
   const [instructions, setInstructions] = useState([
     'Preheat the oven to 350°F (175°C).',
     'Mix the dry ingredients together.',
@@ -51,7 +47,8 @@ const RecipeInstructions = () => {
 
   return (
     <Paper elevation={3} sx={{ mt: 4, borderRadius: 2, overflow: 'hidden' }}>
-      {/* Blue Banner */}
+
+      {/* Title */}
       <Box
         sx={{
           backgroundColor: 'primary.main',
@@ -120,7 +117,7 @@ const RecipeInstructions = () => {
                               variant="standard"
                               value={step}
                               onChange={(e) => handleInstructionChange(index, e.target.value)}
-                              inputProps={{
+                              slotProps={{
                                 style: {
                                   fontSize: '16px',
                                   lineHeight: '30px',
