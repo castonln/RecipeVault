@@ -1,14 +1,29 @@
 import { Card, CardActionArea, CardContent, Grid, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { getRecipes } from "../network/recipesApi";
+import { getRecipes, postRecipe } from "../network/recipesApi";
 import SignOut from "./SignOutButton";
+import AddIcon from "@mui/icons-material/Add";
+import { defaultRecipeInfo } from "./RecipePage/defaultRecipeInfo";
+import { ROUTES } from "../utils/router";
+import { useNavigate } from "react-router-dom";
 
 const RecipeBook = () => {
+	const navigate = useNavigate();
 	const { userId } = useAuth();
 
 	const [recipes, setRecipes] = useState([]);
 	const [selectedCard, setSelectedCard] = useState(null);
+
+	const addRecipe = async () => {
+		try {
+			const response = await postRecipe(userId, defaultRecipeInfo);
+			const data = await response.json();
+			navigate(ROUTES.RECIPEPAGE.path.replace(":recipeId", data.id));
+		} catch (error) {
+			console.error("Failed to create recipe:", error);
+		}
+	};
 
 	useEffect(() => {
 		const fetchUserRecipes = async () => {
@@ -51,6 +66,23 @@ const RecipeBook = () => {
 						</Card>
 					</Grid>
 				))}
+				<Grid size={3}>
+					<Card sx={{ height: '150px' }}>
+						<CardActionArea
+							onClick={addRecipe}
+							sx={{
+								height: '100%',
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+								color: 'text.secondary',
+								border: '2px dashed grey',
+							}}
+						>
+							<AddIcon sx={{ fontSize: 50 }} />
+						</CardActionArea>
+					</Card>
+				</Grid>
 			</Grid>
 		</>
 	);
