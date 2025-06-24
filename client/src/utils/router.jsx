@@ -1,17 +1,17 @@
-import { createBrowserRouter, createRoutesFromElements, Route } from "react-router";
-import SignIn from "../components/SignIn";
+import { createBrowserRouter, createRoutesFromElements, Navigate, Route } from "react-router";
 import RecipeBook from "../components/RecipeBook";
-import RequiresAuth from "./RequiresAuth";
-import SignUp from "../components/SignUp";
 import RecipePage from "../components/RecipePage/RecipePage";
+import SignIn from "../components/SignIn";
+import SignUp from "../components/SignUp";
+import PrivateRoute from "./PrivateRoute";
 
 export const ROUTES = {
   RECIPEBOOK: {
     path: "/",
     element:
-      <RequiresAuth>
+      <PrivateRoute>
         <RecipeBook />
-      </RequiresAuth>
+      </PrivateRoute>
   },
   SIGNUP: {
     path: "/signup",
@@ -24,9 +24,9 @@ export const ROUTES = {
   RECIPEPAGE: {
     path: "/recipe/:recipeId",
     element:
-      <RequiresAuth>
+      <PrivateRoute>
         <RecipePage />
-      </RequiresAuth>
+      </PrivateRoute>
   }
 }
 

@@ -1,7 +1,8 @@
+import { useContext } from "react";
 import { Navigate } from "react-router-dom";
 
 const RequiresAuth = ({ children }) => {
-    const userIsLogged = true; // TODO: Add hook to verify login
+    const userIsLogged = false;
 
     if (!userIsLogged) {
         return <Navigate to={"/signin"} replace />
