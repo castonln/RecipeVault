@@ -154,7 +154,7 @@ namespace server.Controllers
                 return UnprocessableEntity("Recipe does not belong to the specified user.");
 
             // Delete recipe and refresh cache
-            var deleted = await rcpeSrvc.DeleteAndRefreshCacheAsync(recipeId);
+            var deleted = await rcpeSrvc.DeleteWithRelatedAndRefreshCacheAsync(recipeId);
             if (deleted == null)
                 return UnprocessableEntity("Failed to delete recipe.");
 

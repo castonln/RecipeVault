@@ -83,5 +83,30 @@ namespace server.Services
                 CreatedBy = recipe.CreatedBy
             };
         }
+
+        public async Task<Recipe?> DeleteWithRelatedAndRefreshCacheAsync(Guid id)
+        {
+            var recipe = await _context.Recipes
+                .Include(r => r.Instructions)
+                .Include(r => r.RecipeIngredients)
+                .FirstOrDefaultAsync(r => r.Id == id);
+
+            if (recipe == null)
+                return null;
+
+            // Remove related entities first
+            _context.Instructions.RemoveRange(recipe.Instructions);
+            _context.RecipeIngredients.RemoveRange(recipe.RecipeIngredients);
+
+            // Then remove the recipe
+            _context.Recipes.Remove(recipe);
+
+            await _context.SaveChangesAsync();
+
+            // Refresh cache
+            _cache.Remove(cacheKey);
+
+            return recipe;
+        }
     }
 }
