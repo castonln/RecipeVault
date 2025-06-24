@@ -1,7 +1,7 @@
 import { fetchData } from "./fetchData";
 
 export async function signUp(credentials) {
-    const response = await fetchData("/api/Authentication/signup",
+    return await fetchData("/api/Authentication/signup",
         {
             method: "POST",
             headers: {
@@ -9,7 +9,6 @@ export async function signUp(credentials) {
             },
             body: JSON.stringify(credentials),
         });
-    return response.json();
 }
 
 export async function logIn(credentials) {

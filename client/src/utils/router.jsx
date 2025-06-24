@@ -3,30 +3,37 @@ import RecipeBook from "../components/RecipeBook";
 import RecipePage from "../components/RecipePage/RecipePage";
 import SignIn from "../components/SignIn";
 import SignUp from "../components/SignUp";
-import PrivateRoute from "./PrivateRoute";
+import RequiresAuth from "./RequiresAuth";
+import RequiresNoAuth from "./RequiresNoAuth";
 
 export const ROUTES = {
   RECIPEBOOK: {
     path: "/",
     element:
-      <PrivateRoute>
+      <RequiresAuth>
         <RecipeBook />
-      </PrivateRoute>
+      </RequiresAuth>
   },
   SIGNUP: {
     path: "/signup",
-    element: <SignUp />
+    element:
+      <RequiresNoAuth>
+        <SignUp />
+      </RequiresNoAuth>
   },
   SIGNIN: {
     path: "/signin",
-    element: <SignIn />,
+    element:
+      <RequiresNoAuth>
+        <SignIn />
+      </RequiresNoAuth>
   },
   RECIPEPAGE: {
     path: "/recipe/:recipeId",
     element:
-      <PrivateRoute>
+      <RequiresAuth>
         <RecipePage />
-      </PrivateRoute>
+      </RequiresAuth>
   }
 }
 
