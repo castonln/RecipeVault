@@ -6,6 +6,7 @@ import { Box, IconButton, Paper, Typography } from '@mui/material';
 import { useContext, useState } from 'react';
 import EditIngredientDialog from './EditIngredientDialog';
 import { RecipeContext } from '../../context/RecipeContext';
+import { patchIngredients } from '../../network/ingredientsApi';
 
 const RecipeIngredients = () => {
 	const recipe = useContext(RecipeContext);
@@ -17,14 +18,28 @@ const RecipeIngredients = () => {
 	const [editDialogOpen, setEditDialogOpen] = useState(false);
 	const [ingredientToEdit, setIngredientToEdit] = useState(null);
 
+	const [updatedIngredients, setUpdatedIngredients] = useState([]);
+	const [createdIngredients, setCreatedIngredients] = useState([]);
+	const [deletedIngredients, setDeletedIngredients] = useState([]);
+
 	const handleEditClick = () => {
 		setTempIngredients([...ingredients]);
 		setIsEditing(true);
 	};
 
-	const handleSaveClick = () => {
-		setIngredients([...tempIngredients]);
-		setIsEditing(false);
+	const handleSaveClick = async () => {
+		try {
+			const response = await patchIngredients(createdIngredients, updatedIngredients, deletedIngredients);
+			const data = await response.json();
+			console.log(data);
+			setIngredients([...tempIngredients]);
+			setUpdatedIngredients([]);
+			setCreatedIngredients([]);
+			setDeletedIngredients([]);
+			setIsEditing(false);
+		} catch (err) {
+			console.error('Error saving instructions:', err);
+		}
 	};
 
 	const handleEditIngredientClick = (ingredient, index) => {
@@ -33,11 +48,15 @@ const RecipeIngredients = () => {
 	};
 
 	const handleIngredientSave = (updatedIngredient) => {
+		// Ingredient exists, update
 		if (ingredientToEdit?.index !== undefined) {
 			const updatedList = [...tempIngredients];
 			updatedList[ingredientToEdit.index] = updatedIngredient;
+			setUpdatedIngredients([...updatedIngredients, updatedIngredient]);
 			setTempIngredients(updatedList);
+			// Ingredient new, add
 		} else {
+			setCreatedIngredients([...createdIngredients, updatedIngredient]);
 			setTempIngredients((prev) => [...prev, updatedIngredient]);
 		}
 		setEditDialogOpen(false);
@@ -45,6 +64,7 @@ const RecipeIngredients = () => {
 
 	const handleDeleteIngredient = (index) => {
 		const updated = [...tempIngredients];
+		setDeletedIngredients([...deletedIngredients, updated[index]]);
 		updated.splice(index, 1);
 		setTempIngredients(updated);
 	};
@@ -53,7 +73,6 @@ const RecipeIngredients = () => {
 		setIngredientToEdit(null);
 		setEditDialogOpen(true);
 	};
-
 
 	return (
 		<>
@@ -92,7 +111,7 @@ const RecipeIngredients = () => {
 							}}
 						>
 							<Typography variant="body1">
-								{ingredient.quantity} {ingredient.unit} {ingredient.name}
+								{ingredient.quantity} {ingredient.unit} {ingredient.ingredient.name}
 							</Typography>
 
 							<Box>
