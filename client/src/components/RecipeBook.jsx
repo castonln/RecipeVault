@@ -42,7 +42,10 @@ const RecipeBook = () => {
 					<Grid key={index} size={3}>
 						<Card sx={{ height: '150px' }}>
 							<CardActionArea
-								onClick={() => setSelectedCard(index)}
+								onClick={() => {
+									setSelectedCard(index);
+									navigate(ROUTES.RECIPEPAGE.path.replace(":recipeId", recipe.id));
+								}}
 								data-active={selectedCard === index ? '' : undefined}
 								sx={{
 									height: '100%',

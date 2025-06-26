@@ -3,16 +3,13 @@ import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
 import { Box, IconButton, Paper, Typography } from '@mui/material';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import EditIngredientDialog from './EditIngredientDialog';
+import { RecipeContext } from '../../context/RecipeContext';
 
 const RecipeIngredients = () => {
-	{/* Temporary Ingredients (will retrieve from database) */}
-	const [ingredients, setIngredients] = useState([
-		{ name: 'flour', quantity: '2', unit: 'cups' },
-		{ name: 'baking powder', quantity: '1', unit: 'tsp' },
-		{ name: 'sugar', quantity: '0.5', unit: 'cup' }
-	]);
+	const recipe = useContext(RecipeContext);
+	const [ingredients, setIngredients] = useState(recipe.recipeIngredients);
 
 	const [isEditing, setIsEditing] = useState(false);
 	const [tempIngredients, setTempIngredients] = useState([...ingredients]);

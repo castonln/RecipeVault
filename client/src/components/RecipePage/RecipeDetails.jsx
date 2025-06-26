@@ -2,19 +2,25 @@ import { ArrowBack, Delete, Share } from '@mui/icons-material';
 import CheckIcon from '@mui/icons-material/Check';
 import EditIcon from '@mui/icons-material/Edit';
 import { Box, FormControl, Grid, IconButton, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../../utils/router.jsx';
+import { RecipeContext } from '../../context/RecipeContext.js';
+import { deleteRecipe, modifyRecipe } from '../../network/recipesApi.js';
+import { useAuth } from '../../context/AuthContext.jsx';
 
 const RecipeDetails = () => {
   const navigate = useNavigate();
+  const recipe = useContext(RecipeContext);
+  const recipeId = recipe.id;
+  const { userId } = useAuth();
 
   const [isEditing, setIsEditing] = useState(false);
 
-  const [title, setTitle] = useState('My Recipe');
-  const [description, setDescription] = useState("This is my favorite meal.");
-  const [prepTime, setPrepTime] = useState('15 mins');
-  const [cookTime, setCookTime] = useState('30 mins');
+  const [title, setTitle] = useState(recipe.name);
+  const [description, setDescription] = useState(recipe.description);
+  const [prepTime, setPrepTime] = useState(recipe.prepTime);
+  const [cookTime, setCookTime] = useState(recipe.cookTime);
 
   const [tempState, setTempState] = useState({
     title,
@@ -28,15 +34,40 @@ const RecipeDetails = () => {
     setIsEditing(true);
   };
 
-  const handleSaveClick = () => {
-    setTitle(tempState.title);
-    setDescription(tempState.description);
-    setPrepTime(tempState.prepTime);
-    setCookTime(tempState.cookTime);
-    setIsEditing(false);
+  const handleSaveClick = async () => {
+
+    try {
+      const response = await modifyRecipe(userId, recipeId, tempState);
+
+      if (response.ok) {
+        setTitle(tempState.title);
+        setDescription(tempState.description);
+        setPrepTime(tempState.prepTime);
+        setCookTime(tempState.cookTime);
+        setIsEditing(false);
+      } else {
+        console.error("Failed to save recipe");
+      }
+    } catch (error) {
+      console.error("Error saving recipe:", error);
+    }
   };
 
-  const timeOptions = ['5 mins', '10 mins', '15 mins', '20 mins', '30 mins', '45 mins', '1 hr'];
+  const handleDeleteClick = async () => {
+    try {
+      const response = await deleteRecipe(recipe.id, userId);
+
+      if (response.ok) {
+        navigate(ROUTES.RECIPEBOOK.path);
+      } else {
+        console.error("Failed to delete recipe");
+      }
+    } catch (error) {
+      console.error("Error deleting recipe:", error);
+    }
+  };
+
+  const timeOptions = [5, 10, 15, 20, 30, 45, 60];
 
   return (
     <Box sx={(theme) => ({
@@ -61,7 +92,7 @@ const RecipeDetails = () => {
           <IconButton sx={{ color: 'white' }}>
             <Share />
           </IconButton>
-          <IconButton sx={{ color: 'white' }}>
+          <IconButton sx={{ color: 'white' }} onClick={handleDeleteClick}>
             <Delete />
           </IconButton>
         </Stack>
