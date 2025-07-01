@@ -28,7 +28,7 @@ export const ROUTES = {
         <RecipePage />
       </RequiresAuth>
   }
-}
+};
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
