@@ -56,10 +56,18 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Id)
                 .HasDefaultValueSql("gen_random_uuid()")
                 .HasColumnName("id");
+            entity.Property(e => e.Calories).HasColumnName("calories");
+            entity.Property(e => e.Carbs).HasColumnName("carbs");
+            entity.Property(e => e.Fats).HasColumnName("fats");
             entity.Property(e => e.FdaId).HasColumnName("fda_id");
             entity.Property(e => e.Name)
                 .HasColumnType("character varying")
                 .HasColumnName("name");
+            entity.Property(e => e.Protein).HasColumnName("protein");
+            entity.Property(e => e.ServingSize).HasColumnName("serving_size");
+            entity.Property(e => e.Unit)
+                .HasColumnType("character varying")
+                .HasColumnName("unit");
         });
 
         modelBuilder.Entity<Instruction>(entity =>
@@ -67,8 +75,6 @@ public partial class AppDbContext : DbContext
             entity.HasKey(e => e.Id).HasName("instructions_pkey");
 
             entity.ToTable("instructions");
-
-            entity.HasIndex(e => new { e.InstructionNumber, e.RecipeId }, "instructions_uk1").IsUnique();
 
             entity.Property(e => e.Id)
                 .HasDefaultValueSql("gen_random_uuid()")
