@@ -3,12 +3,20 @@ FROM node:18-alpine AS build
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
-COPY . ./
+COPY . .
 RUN npm run build
 
 # Production stage
-FROM nginx:alpine
-COPY --from=build /app/dist /usr/share/nginx/html
-EXPOSE 80
+FROM node:18-alpine
+WORKDIR /app
 
-CMD ["nginx", "-g", "daemon off;"]
+# Copy build output and app files
+COPY --from=build /app/dist ./dist
+COPY server.js ./
+COPY package*.json ./
+
+# Install only production dependencies (express)
+RUN npm install --only=production
+
+EXPOSE 3000
+CMD ["node", "server.js"]
