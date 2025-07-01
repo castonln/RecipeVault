@@ -78,6 +78,7 @@ const RecipeInstructions = () => {
     // const createInstructions = editedInstructions.filter(item => item.id === undefined);
     // const updateInstructions = editedInstructions.filter(item => instructionsIds.has(item.id));
 
+    // This is a stopgap solution until key error is fixed - LC
     const deletePayload = {
       "createEntities": [],
       "updateEntities": [],
@@ -91,6 +92,9 @@ const RecipeInstructions = () => {
     };
 
     try {
+      const deleteResp = await patchInstructions(deletePayload);
+      const deleteData = await deleteResp.json();
+      console.log(deleteData);
       const response = await patchInstructions(createPayload);
       const data = await response.json();
       setInstructions(data.createEntities);
