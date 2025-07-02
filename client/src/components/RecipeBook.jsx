@@ -1,19 +1,27 @@
-import { Card, CardActionArea, CardContent, Grid, Typography } from "@mui/material";
+import { AccountCircle } from "@mui/icons-material";
+import AddIcon from "@mui/icons-material/Add";
+import { AppBar, Card, CardActionArea, CardContent, createTheme, Grid, IconButton, Menu, MenuItem, Toolbar, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { getRecipes, postRecipe } from "../network/recipesApi";
-import SignOut from "./SignOutButton";
-import AddIcon from "@mui/icons-material/Add";
-import { defaultRecipeInfo } from "./RecipePage/defaultRecipeInfo";
 import { ROUTES } from "../utils/router";
-import { useNavigate } from "react-router-dom";
+import { defaultRecipeInfo } from "./RecipePage/defaultRecipeInfo";
 
 const RecipeBook = () => {
 	const navigate = useNavigate();
-	const { userId } = useAuth();
+	const { userId, setUserId } = useAuth();
+
+	const handleSignOut = () => {
+		setUserId("");
+		navigate(ROUTES.SIGNIN.path);
+	};
 
 	const [recipes, setRecipes] = useState([]);
 	const [selectedCard, setSelectedCard] = useState(null);
+
+	const [auth, setAuth] = useState(true);
+	const [anchorEl, setAnchorEl] = useState(null);
 
 	const addRecipe = async () => {
 		try {
@@ -34,9 +42,64 @@ const RecipeBook = () => {
 		fetchUserRecipes();
 	}, []);
 
+	const handleMenu = (event) => {
+		setAnchorEl(event.currentTarget);
+	};
+
+	const handleClose = () => {
+		setAnchorEl(null);
+	};
+
+	const theme = createTheme({
+		palette: {
+			ochre: {
+				main: '#E3D026',
+				light: '#E9DB5D',
+				dark: '#A29415',
+				contrastText: '#242105',
+			},
+		},
+	});
+
+
 	return (
 		<>
-			<SignOut />
+			<AppBar position="static">
+				<Toolbar>
+					<Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+						Recipe Vault
+					</Typography>
+					<div>
+						<IconButton
+							size="large"
+							aria-label="account of current user"
+							aria-controls="menu-appbar"
+							aria-haspopup="true"
+							onClick={handleMenu}
+							color="inherit"
+						>
+							<AccountCircle />
+						</IconButton>
+						<Menu
+							id="menu-appbar"
+							anchorEl={anchorEl}
+							anchorOrigin={{
+								vertical: 'bottom',
+								horizontal: 'right',
+							}}
+							keepMounted
+							transformOrigin={{
+								vertical: 'top',
+								horizontal: 'right',
+							}}
+							open={Boolean(anchorEl)}
+							onClose={handleClose}
+						>
+							<MenuItem onClick={handleSignOut}>Sign Out</MenuItem>
+						</Menu>
+					</div>
+				</Toolbar>
+			</AppBar>
 			<Grid container spacing={2} padding={2}>
 				{recipes.map((recipe, index) => (
 					<Grid key={index} size={3}>
