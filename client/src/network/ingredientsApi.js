@@ -1,12 +1,23 @@
 import { fetchData } from './fetchData';
 
-export async function patchIngredients(created, updated, deleted) {
-    const payload = {
-        "createEntities": created,
-        "updateEntities": updated,
-        "deleteEntities": deleted
+export async function patchIngredient(action, ingredient) {
+    let payload = {
+        "createEntities": [],
+        "updateEntities": [],
+        "deleteEntities": []
     }
-    console.log(JSON.stringify(payload));
+
+    if (action === 'create') {
+        payload.createEntities = [ingredient];
+    } else if (action === 'update') {
+        payload.updateEntities = [ingredient];
+    } else if (action === 'delete') {
+        payload.deleteEntities = [ingredient];
+    } else {
+        throw new Error(`Invalid action: ${action}. Expected 'create', 'update', or 'delete'.`);
+    }
+    
+    //console.log(JSON.stringify(payload));
 
     const url = `/api/RecipeIngredients`;
     return await fetchData(url, {

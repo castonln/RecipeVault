@@ -6,67 +6,69 @@ import { Box, IconButton, Paper, Typography } from '@mui/material';
 import { useContext, useState } from 'react';
 import EditIngredientDialog from './EditIngredientDialog';
 import { RecipeContext } from '../../context/RecipeContext';
-import { patchIngredients } from '../../network/ingredientsApi';
+import { patchIngredient } from '../../network/ingredientsApi';
+import { IngredientsContext } from '../../context/IngredientsContext';
 
 const RecipeIngredients = () => {
+	const ingredientsList = useContext(IngredientsContext);
 	const recipe = useContext(RecipeContext);
+
 	const [ingredients, setIngredients] = useState(recipe.recipeIngredients);
 
 	const [isEditing, setIsEditing] = useState(false);
-	const [tempIngredients, setTempIngredients] = useState([...ingredients]);
 
 	const [editDialogOpen, setEditDialogOpen] = useState(false);
 	const [ingredientToEdit, setIngredientToEdit] = useState(null);
 
-	const [updatedIngredients, setUpdatedIngredients] = useState([]);
-	const [createdIngredients, setCreatedIngredients] = useState([]);
-	const [deletedIngredients, setDeletedIngredients] = useState([]);
-
 	const handleEditClick = () => {
-		setTempIngredients([...ingredients]);
 		setIsEditing(true);
 	};
 
-	const handleSaveClick = async () => {
-		try {
-			const response = await patchIngredients(createdIngredients, updatedIngredients, deletedIngredients);
-			const data = await response.json();
-			console.log(data);
-			setIngredients([...tempIngredients]);
-			setUpdatedIngredients([]);
-			setCreatedIngredients([]);
-			setDeletedIngredients([]);
-			setIsEditing(false);
-		} catch (err) {
-			console.error('Error saving instructions:', err);
-		}
+	const handleSaveClick = () => {
+		setIsEditing(false);
 	};
 
-	const handleEditIngredientClick = (ingredient, index) => {
-		setIngredientToEdit({ ...ingredient, index });
+	const handleEditIngredientClick = (ingredient) => {
+		setIngredientToEdit(ingredient);
 		setEditDialogOpen(true);
 	};
 
-	const handleIngredientSave = (updatedIngredient) => {
-		// Ingredient exists, update
-		if (ingredientToEdit?.index !== undefined) {
-			const updatedList = [...tempIngredients];
-			updatedList[ingredientToEdit.index] = updatedIngredient;
-			setUpdatedIngredients([...updatedIngredients, updatedIngredient]);
-			setTempIngredients(updatedList);
-			// Ingredient new, add
-		} else {
-			setCreatedIngredients([...createdIngredients, updatedIngredient]);
-			setTempIngredients((prev) => [...prev, updatedIngredient]);
-		}
+	const handleIngredientCreate = async (ingredientToCreate) => {
+		const response = await patchIngredient('create', ingredientToCreate);
+		const data = await response.json();
+		const newIngredient = data.createEntities[0];
+		newIngredient.ingredient = ingredientsList.find(i => i.id === newIngredient.ingredientId); 	// get the coordinated ingredient object since it isn't returned by default
+		setIngredients([...ingredients, newIngredient]);
 		setEditDialogOpen(false);
 	};
 
-	const handleDeleteIngredient = (index) => {
-		const updated = [...tempIngredients];
-		setDeletedIngredients([...deletedIngredients, updated[index]]);
-		updated.splice(index, 1);
-		setTempIngredients(updated);
+	const handleIngredientUpdate = async (ingredientToUpdate) => {
+		const response = await patchIngredient('update', ingredientToUpdate);
+		const data = await response.json();
+		const updatedIngredient = {
+			...data.updateEntities[0],
+			ingredient: ingredientsList.find(i => i.id === data.updateEntities[0].ingredientId)
+		};	// get the coordinated ingredient object since it isn't returned by default
+
+
+		setIngredients((prev) =>
+			prev.map((ingredient) =>
+				ingredient.id === updatedIngredient.id ? updatedIngredient : ingredient
+			)
+		);
+
+		setEditDialogOpen(false);
+	};
+
+
+	const handleDeleteIngredient = async (ingredientToDelete) => {
+		await patchIngredient('delete', ingredientToDelete);
+
+		const updated = ingredients.filter(
+			(ingredient) => ingredient.id !== ingredientToDelete.id
+		);
+
+		setIngredients(updated);
 	};
 
 	const handleAddIngredient = () => {
@@ -98,9 +100,9 @@ const RecipeIngredients = () => {
 
 				{/* Ingredient List */}
 				<Box sx={{ p: 0 }}>
-					{(isEditing ? tempIngredients : ingredients).map((ingredient, index, arr) => (
+					{ingredients.map((ingredient, index, arr) => (
 						<Box
-							key={index}
+							key={ingredient.id}
 							sx={{
 								display: 'flex',
 								alignItems: 'center',
@@ -111,14 +113,14 @@ const RecipeIngredients = () => {
 							}}
 						>
 							<Typography variant="body1">
-								{ingredient.quantity} {ingredient.unit} {ingredient.ingredient.name}
+								{ingredient?.quantity || ''} {ingredient?.unit || ''} {ingredient.ingredient?.name || '[Unknown Ingredient]'}
 							</Typography>
 
 							<Box>
 								<IconButton
 									size="small"
 									sx={{ mr: 1, visibility: isEditing ? 'visible' : 'hidden' }}
-									onClick={() => handleEditIngredientClick(ingredient, index)}
+									onClick={() => handleEditIngredientClick(ingredient)}
 									disabled={!isEditing}
 								>
 									<EditIcon fontSize="small" />
@@ -127,7 +129,7 @@ const RecipeIngredients = () => {
 									size="small"
 									sx={{ visibility: isEditing ? 'visible' : 'hidden' }}
 									disabled={!isEditing}
-									onClick={() => handleDeleteIngredient(index)}
+									onClick={() => handleDeleteIngredient(ingredient)}
 								>
 									<CloseIcon fontSize="small" />
 								</IconButton>
@@ -149,8 +151,10 @@ const RecipeIngredients = () => {
 			<EditIngredientDialog
 				open={editDialogOpen}
 				onClose={() => setEditDialogOpen(false)}
-				onSave={handleIngredientSave}
+				onCreate={handleIngredientCreate}
+				onUpdate={handleIngredientUpdate}
 				initialData={ingredientToEdit}
+				existingIngredientIds={ingredients.map(i => i.ingredientId)}
 			/>
 		</>
 	);

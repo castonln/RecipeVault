@@ -94,7 +94,6 @@ const RecipeInstructions = () => {
     try {
       const deleteResp = await patchInstructions(deletePayload);
       const deleteData = await deleteResp.json();
-      console.log(deleteData);
       const response = await patchInstructions(createPayload);
       const data = await response.json();
       setInstructions(data.createEntities);
@@ -113,7 +112,10 @@ const RecipeInstructions = () => {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        p: 2
+        p: 2,
+        borderTopLeftRadius: 8,
+        borderTopRightRadius: 8
+
       }}>
         <Typography variant="h6">Instructions</Typography>
         <IconButton onClick={isEditing ? handleSaveClick : handleEditClick} sx={{ color: 'white' }}>

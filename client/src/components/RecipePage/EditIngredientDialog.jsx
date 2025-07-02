@@ -1,14 +1,15 @@
-import { Dialog, DialogTitle, DialogContent, DialogActions, IconButton, TextField, Select, MenuItem, Button, Box, FormControl, InputLabel, FormHelperText, Autocomplete } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { useState, useEffect, useContext } from 'react';
-import createIngredientObject from './createIngredientObject';
+import { Autocomplete, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormHelperText, IconButton, InputLabel, MenuItem, Select, TextField } from '@mui/material';
+import { useContext, useEffect, useState } from 'react';
 import { RecipeContext } from '../../context/RecipeContext';
-import { getIngredients } from '../../network/ingredientsApi';
+import { IngredientsContext } from '../../context/IngredientsContext';
+import createIngredientObject from './createIngredientObject';
 
 const unitOptions = ['g', 'kg', 'ml', 'l', 'tsp', 'tbsp', 'cup', 'cups', 'pcs'];
 
-const EditIngredientDialog = ({ open, onClose, onSave, initialData }) => {
+const EditIngredientDialog = ({ open, onClose, onCreate, onUpdate, initialData, existingIngredientIds }) => {
 	const { id: recipeId } = useContext(RecipeContext);
+	const ingredientsList = useContext(IngredientsContext);
 
 	const [ingredient, setIngredient] = useState({});
 	const [quantity, setQuantity] = useState('');
@@ -18,16 +19,6 @@ const EditIngredientDialog = ({ open, onClose, onSave, initialData }) => {
 	const [quantityError, setQuantityError] = useState(false);
 	const [unitError, setUnitError] = useState(false);
 
-	const [ingredientsList, setIngredientsList] = useState([]);
-
-	useEffect(() => {
-		const fetchIngredients = async () => {
-			const response = await getIngredients();
-			const data = await response.json();
-			setIngredientsList(data);
-		}
-		fetchIngredients();
-	}, [])
 
 	useEffect(() => {
 		setIngredient(initialData?.ingredient || {});
@@ -58,17 +49,35 @@ const EditIngredientDialog = ({ open, onClose, onSave, initialData }) => {
 			setUnitError(true);
 			valid = false;
 		}
+		if (!initialData && existingIngredientIds.includes(ingredient.id)) {
+			setIngredientError(true);
+			valid = false;
+		}
 
 		if (!valid) return;
 
-		onSave(createIngredientObject(
-			ingredient,
-			quantity,
-			unit,
-			initialData?.id || undefined,
-			recipeId
-		));
-		onClose();
+		// No data passed initially, create new ingredient
+		if (!initialData) {
+			const newIngredient = createIngredientObject(
+				ingredient.id,
+				quantity,
+				unit,
+				undefined,
+				recipeId
+			);
+			onCreate(newIngredient);
+
+			// Update ingredient
+		} else {
+			const updateIngredient = createIngredientObject(
+				ingredient.id,
+				quantity,
+				unit,
+				initialData.id,
+				recipeId
+			);
+			onUpdate(updateIngredient);
+		}
 	};
 
 	return (
@@ -96,7 +105,6 @@ const EditIngredientDialog = ({ open, onClose, onSave, initialData }) => {
 						getOptionLabel={(option) => option.name || ''}
 						value={ingredient}
 						onChange={(event, newValue) => {
-							console.log('Selected ingredient:', newValue);
 							setIngredient(newValue);
 						}}
 						isOptionEqualToValue={(option, value) => option.id === value?.id}
@@ -105,9 +113,22 @@ const EditIngredientDialog = ({ open, onClose, onSave, initialData }) => {
 								{...params}
 								label="Ingredient Name"
 								error={ingredientError}
-								helperText={ingredientError ? "Please enter an ingredient name." : ''}
+								helperText={
+									ingredientError
+										? (!initialData && existingIngredientIds.includes(ingredient?.id))
+											? "This ingredient is already added."
+											: "Please enter an ingredient name."
+										: ''
+								}
+
 							/>
-						)}
+						)
+						}
+						getOptionDisabled={(option) =>
+							!initialData || option.id !== initialData.ingredient?.id
+								? existingIngredientIds.includes(option.id)
+								: false
+						}
 					/>
 
 					<Box sx={{ display: 'flex', gap: 2 }}>

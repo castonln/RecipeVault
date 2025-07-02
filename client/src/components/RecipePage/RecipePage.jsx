@@ -7,11 +7,15 @@ import RecipeDetails from "./RecipeDetails";
 import RecipeIngredients from "./RecipeIngredients";
 import RecipeInstructions from "./RecipeInstructions";
 import { RecipeContext } from "../../context/RecipeContext";
+import { IngredientsContext } from "../../context/IngredientsContext";
+import { getIngredients } from "../../network/ingredientsApi";
 
 const RecipePage = () => {
     const { userId } = useAuth();
     const { recipeId } = useParams();
+
     const [recipe, setRecipe] = useState(null);
+    const [ingredients, setIngredients] = useState(null);
 
     useEffect(() => {
         const fetchRecipe = async () => {
@@ -24,7 +28,18 @@ const RecipePage = () => {
             }
         };
 
+        const fetchIngredients = async () => {
+            try {
+                const response = await getIngredients();
+                const data = await response.json();
+                setIngredients(data);
+            } catch (error) {
+                console.error("Error fetching ingredients:", error);
+            }
+        };
+
         fetchRecipe();
+        fetchIngredients();
     }, [recipeId, userId]);
 
     if (!recipe) return <div>Loading recipe...</div>;
@@ -33,7 +48,9 @@ return (
     <RecipeContext.Provider value={recipe}>
         <RecipeDetails />
         <Stack direction="column" spacing={2} sx={{ padding: "20px" }}>
-            <RecipeIngredients />
+            <IngredientsContext.Provider value={ingredients}>
+                <RecipeIngredients />
+            </IngredientsContext.Provider>
             <RecipeInstructions />
         </Stack>
     </RecipeContext.Provider>
