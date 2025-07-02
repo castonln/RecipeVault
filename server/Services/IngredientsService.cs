@@ -17,6 +17,12 @@ namespace server.Services
                 Id = ingredient.Id,
                 Name = ingredient.Name,
                 FdaId = ingredient.FdaId,
+                Calories = ingredient.Calories,
+                Carbs = ingredient.Carbs,
+                Fats = ingredient.Fats,
+                Protein = ingredient.Protein,
+                ServingSize = ingredient.ServingSize,
+                Unit = ingredient.Unit
             };
         }
 
@@ -26,7 +32,13 @@ namespace server.Services
             {
                 Id = ingredient.Id ?? throw new Exception("entityId must not be null"),
                 Name = ingredient.Name,
-                FdaId = ingredient.FdaId
+                FdaId = ingredient.FdaId,
+                Calories = ingredient.Calories,
+                Carbs = ingredient.Carbs,
+                Fats = ingredient.Fats,
+                Protein = ingredient.Protein,
+                ServingSize = ingredient.ServingSize,
+                Unit = ingredient.Unit
             };
         }
     }

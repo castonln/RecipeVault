@@ -161,5 +161,52 @@ namespace server.Controllers
             var resultDto = rcpeSrvc.MapToDTO(deleted);
             return Ok(resultDto);
         }
+
+
+        [HttpGet("{recipeId}/metadata")]
+        public async Task<IActionResult> GetRecipeMetadata([FromRoute] Guid recipeId, [FromQuery] Guid userId)
+        {
+            // Check if user exists  
+            var user = await usrSrvc.GetByIdFromCacheOrDbAsync(userId);
+            if (user == null)
+            {
+                return UnprocessableEntity("No existing user with that id.");
+            }
+            // Get the recipe  
+            var recipe = await rcpeSrvc.GetByIdFromCacheOrDbAsync(recipeId);
+            if (recipe == null)
+            {
+                return UnprocessableEntity("No existing recipe with that id.");
+            }
+            if (recipe.CreatedBy != userId)
+            {
+                return UnprocessableEntity("Recipe does not belong to the specified user.");
+            }
+            ComplexRecipeDTO complexRecipe = await rcpeSrvc.MapToComplexDTO(recipe);
+
+            // Get list of all of the ingredients from complexRecipe  
+            List<IngredientDTO> ingredients = complexRecipe.RecipeIngredients
+                .Select(x => x.Ingredient!) // Use null-forgiving operator to ensure non-null values  
+                .Where(ingredient => ingredient != null) // Filter out any null values  
+                .ToList();
+
+            RecipeMetadataDTO meta = new()
+            {
+                Calories = 0,
+                Protein = 0,
+                Carbs = 0,
+                Fats = 0
+            };
+            foreach (IngredientDTO ingredient in ingredients)
+            {
+                meta.Calories += ingredient.Calories ?? 0;
+                meta.Protein += ingredient.Protein ?? 0;
+                meta.Carbs += ingredient.Carbs ?? 0;
+                meta.Fats += ingredient.Fats ?? 0;
+            }
+
+            // Return metadata  
+            return Ok(meta);
+        }
     }
 }
