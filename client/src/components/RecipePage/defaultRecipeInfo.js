@@ -1,8 +1,8 @@
 export const defaultRecipeInfo = {
     "name": "Recipe Name",
-    "description": "Description",
+    "description": "This is my new recipe.",
     "servings": 0,
     "servingSize": 0,
-    "prepTime": 0,
-    "cookTime": 0
+    "prepTime": 10,
+    "cookTime": 10
 }

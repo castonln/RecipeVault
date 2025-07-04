@@ -20,7 +20,6 @@ const RecipeBook = () => {
 	const [recipes, setRecipes] = useState([]);
 	const [selectedCard, setSelectedCard] = useState(null);
 
-	const [auth, setAuth] = useState(true);
 	const [anchorEl, setAnchorEl] = useState(null);
 
 	const addRecipe = async () => {
@@ -102,8 +101,8 @@ const RecipeBook = () => {
 			</AppBar>
 			<Grid container spacing={2} padding={2}>
 				{recipes.map((recipe, index) => (
-					<Grid key={index} size={3}>
-						<Card sx={{ height: '150px' }}>
+					<Grid key={index} size={{xs: 12, sm: 6, md: 3}}>
+						<Card elevation={3} sx={{ height: '150px' }}>
 							<CardActionArea
 								onClick={() => {
 									setSelectedCard(index);
@@ -132,8 +131,8 @@ const RecipeBook = () => {
 						</Card>
 					</Grid>
 				))}
-				<Grid size={3}>
-					<Card sx={{ height: '150px' }}>
+				<Grid size={{xs: 12, sm: 6, md: 3}}>
+					<Card elevation={3} sx={{ height: '150px' }}>
 						<CardActionArea
 							onClick={addRecipe}
 							sx={{
@@ -142,7 +141,6 @@ const RecipeBook = () => {
 								alignItems: 'center',
 								justifyContent: 'center',
 								color: 'text.secondary',
-								border: '2px dashed grey',
 							}}
 						>
 							<AddIcon sx={{ fontSize: 50 }} />

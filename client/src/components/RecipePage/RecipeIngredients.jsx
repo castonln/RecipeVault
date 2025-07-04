@@ -99,7 +99,7 @@ const RecipeIngredients = () => {
 				</Box>
 
 				{/* Ingredient List */}
-				<Box sx={{ p: 0 }}>
+				<Box>
 					{ingredients.map((ingredient, index, arr) => (
 						<Box
 							key={ingredient.id}
@@ -137,11 +137,11 @@ const RecipeIngredients = () => {
 						</Box>
 					))}
 
-					{/* Add Ingredient Button (only in edit mode) */}
+					{/* Add Ingredient Button */}
 					{isEditing && (
 						<Box sx={{ display: 'flex', justifyContent: 'center', py: 2, borderTop: '1px solid #ddd' }}>
-							<IconButton onClick={handleAddIngredient} size="large" sx={{ height: "40px" }}>
-								<AddIcon fontSize="inherit" />
+							<IconButton onClick={handleAddIngredient} size='large'>
+								<AddIcon fontSize='inherit' />
 							</IconButton>
 						</Box>
 					)}

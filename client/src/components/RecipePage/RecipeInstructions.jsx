@@ -104,7 +104,7 @@ const RecipeInstructions = () => {
   };
 
   return (
-    <Paper elevation={3} sx={{ mt: 4, borderRadius: 2 }}>
+    <Paper elevation={3} sx={{ mt: 4, borderRadius: 2, overflow: 'hidden' }}>
       {/* Header */}
       <Box sx={{
         backgroundColor: 'primary.main',
@@ -124,8 +124,8 @@ const RecipeInstructions = () => {
       </Box>
 
       {/* Body */}
-      <Box sx={{ p: 2 }}>
-        {isEditing ? (
+      {isEditing ? (
+        <Box>
           <DragDropContext onDragEnd={handleDragEnd}>
             <Droppable droppableId="instructions">
               {(provided) => (
@@ -136,7 +136,7 @@ const RecipeInstructions = () => {
                         <Box
                           ref={provided.innerRef}
                           {...provided.draggableProps}
-                          sx={{ display: 'flex', alignItems: 'center', mb: 1 }}
+                          sx={{ display: 'flex', alignItems: 'center', paddingX: 2, paddingY: 1 }}
                         >
                           <Box sx={{ minWidth: 24, mr: 2 }}>{index + 1}.</Box>
                           <TextField
@@ -160,24 +160,25 @@ const RecipeInstructions = () => {
               )}
             </Droppable>
           </DragDropContext>
-        ) : (
-          instructions.map((step, index) => (
-            <Box key={index} sx={{ display: 'flex', mb: 1 }}>
-              <Box sx={{ minWidth: 24, mr: 2 }}>{index + 1}.</Box>
-              <Typography>{step.description}</Typography>
-            </Box>
-          ))
-        )}
-
-        {/* Add Step Button */}
-        {isEditing && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-            <IconButton onClick={handleAddInstruction}>
-              <AddIcon />
-            </IconButton>
+        </Box>
+      ) : (
+        <Box sx={instructions.length > 0 ? { p: 2 } : {}}>
+          {instructions.map((step, index) => (
+          <Box key={index} sx={{ display: 'flex', mb: 1 }}>
+            <Box sx={{ minWidth: 24, mr: 2 }}>{index + 1}.</Box>
+            <Typography>{step.description}</Typography>
           </Box>
-        )}
-      </Box>
+          ))}
+        </Box>
+      )}
+      {/* Add Step Button */}
+      {isEditing && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
+          <IconButton onClick={handleAddInstruction} size='large'>
+            <AddIcon fontSize='inherit' />
+          </IconButton>
+        </Box>
+      )}
     </Paper>
   );
 };

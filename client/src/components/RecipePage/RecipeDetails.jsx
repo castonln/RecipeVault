@@ -1,13 +1,14 @@
 import { ArrowBack, Delete, Share } from '@mui/icons-material';
 import CheckIcon from '@mui/icons-material/Check';
 import EditIcon from '@mui/icons-material/Edit';
-import { Box, FormControl, Grid, IconButton, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
+import { Box, FormControl, Grid, IconButton, Input, InputBase, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ROUTES } from '../../utils/router.jsx';
+import { useAuth } from '../../context/AuthContext.jsx';
 import { RecipeContext } from '../../context/RecipeContext.js';
 import { deleteRecipe, modifyRecipe } from '../../network/recipesApi.js';
-import { useAuth } from '../../context/AuthContext.jsx';
+import { ROUTES } from '../../utils/router.jsx';
 
 const RecipeDetails = () => {
   const navigate = useNavigate();
@@ -28,6 +29,58 @@ const RecipeDetails = () => {
     prepTime,
     cookTime,
   });
+
+  const WhiteTextField = styled(TextField)(({ theme }) => ({
+    '& .MuiInputBase-input': {
+      color: 'white', // input text color
+    },
+    '& .MuiInputLabel-root': {
+      color: 'rgba(255, 255, 255, 0.8)', // label color
+    },
+    '& .MuiInputLabel-root.Mui-focused': {
+      color: 'white', // focused label color
+    },
+    '& .MuiInput-underline:before': {
+      borderBottom: '1px solid rgba(255, 255, 255, 0.5)', // unfocused underline
+    },
+    '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
+      borderBottom: '1px solid white', // hover underline
+    },
+    '& .MuiInput-underline:after': {
+      borderBottom: '2px solid white', // focused underline
+    },
+  }));
+
+  const WhiteSelect = styled(Select)(({ theme }) => ({
+    color: 'white',
+    '& .MuiSelect-icon': {
+      color: 'white',
+    },
+    '& .MuiInput-underline:before': {
+      borderBottom: '1px solid rgba(255, 255, 255, 0.5)',
+    },
+    '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
+      borderBottom: '1px solid white',
+    },
+    '& .MuiInput-underline:after': {
+      borderBottom: '2px solid white',
+    },
+  }));
+
+  const WhiteInput = styled(Input)(({ theme }) => ({
+    color: 'white',
+    '&:before': {
+      borderBottom: '1px solid rgba(255, 255, 255, 0.5)',
+    },
+    '&:hover:not(.Mui-disabled):before': {
+      borderBottom: '1px solid white',
+    },
+    '&:after': {
+      borderBottom: '2px solid white',
+    },
+  }));
+
+
 
   const handleEditClick = () => {
     setTempState({ title, description, prepTime, cookTime });
@@ -67,7 +120,7 @@ const RecipeDetails = () => {
     }
   };
 
-  const timeOptions = [5, 10, 15, 20, 30, 45, 60];
+  const timeOptions = [5, 10, 15, 20, 30, 45, 60, 90, 120];
 
   return (
     <Box sx={(theme) => ({
@@ -99,15 +152,19 @@ const RecipeDetails = () => {
       </Stack>
 
       {/* Title */}
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative', mb: 1 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative', mb: 2 }}>
         {isEditing ? (
-          <TextField
+          <WhiteTextField
             variant="standard"
             label="Recipe Title"
             value={tempState.title}
             onChange={(e) => setTempState((prev) => ({ ...prev, title: e.target.value }))}
             sx={{
-              maxWidth: '500px', textAlign: 'center',
+              width: {
+                xs: '90%',
+                sm: '75%',
+                md: '50%',
+              },
               '& .MuiInputLabel-root': {
                 color: 'rgba(255, 255, 255, 0.8)',
               },
@@ -115,7 +172,6 @@ const RecipeDetails = () => {
             slotProps={{
               input: {
                 style: {
-                  textAlign: 'center',
                   fontSize: '1.8rem',
                   fontWeight: 'bold',
                   color: 'white',
@@ -133,14 +189,19 @@ const RecipeDetails = () => {
       {/* Description */}
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mb: 3 }}>
         {isEditing ? (
-          <TextField
+          <WhiteTextField
             variant="standard"
             multiline
+            minRows={2}
             label="Description"
             value={tempState.description}
             onChange={(e) => setTempState((prev) => ({ ...prev, description: e.target.value }))}
             sx={{
-              maxWidth: '500px',
+              width: {
+                xs: '90%',
+                sm: '75%',
+                md: '50%',
+              },
               '& .MuiInputLabel-root': {
                 color: 'rgba(255, 255, 255, 0.8)',
               },
@@ -173,19 +234,19 @@ const RecipeDetails = () => {
           </Typography>
           {isEditing ? (
             <FormControl variant="standard" sx={{ minWidth: 100 }}>
-              <Select
+              <WhiteSelect
                 value={tempState.prepTime}
                 onChange={(e) => setTempState((prev) => ({ ...prev, prepTime: e.target.value }))}
-                sx={{ color: 'white' }}
+                input={<WhiteInput />}
               >
                 {timeOptions.map((option) => (
-                  <MenuItem key={option} value={option}>{option}</MenuItem>
+                  <MenuItem key={option} value={option}>{option} min</MenuItem>
                 ))}
-              </Select>
+              </WhiteSelect>
             </FormControl>
           ) : (
             <Typography variant="h6" sx={{ fontWeight: 700, marginBottom: 0.5 }}>
-              {prepTime}
+              {prepTime} min
             </Typography>
           )}
         </Box>
@@ -197,19 +258,19 @@ const RecipeDetails = () => {
           </Typography>
           {isEditing ? (
             <FormControl variant="standard" sx={{ minWidth: 100 }}>
-              <Select
+              <WhiteSelect
                 value={tempState.cookTime}
                 onChange={(e) => setTempState((prev) => ({ ...prev, cookTime: e.target.value }))}
-                sx={{ color: 'white' }}
+                input={<WhiteInput />}
               >
                 {timeOptions.map((option) => (
-                  <MenuItem key={option} value={option}>{option}</MenuItem>
+                  <MenuItem key={option} value={option}>{option} min</MenuItem>
                 ))}
-              </Select>
+              </WhiteSelect>
             </FormControl>
           ) : (
             <Typography variant="h6" sx={{ fontWeight: 700, marginBottom: 0.5 }}>
-              {cookTime}
+              {cookTime} min
             </Typography>
           )}
         </Box>
