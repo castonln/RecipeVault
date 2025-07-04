@@ -1,9 +1,7 @@
-import { fetchData } from "./fetchData";
-
 export async function getRecipes(userId) {
     const url = `/api/Recipes?userId=${userId}`;
 
-    return await fetchData(url, {
+    return await fetch(url, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
@@ -14,7 +12,7 @@ export async function getRecipes(userId) {
 export async function postRecipe(userId, data) {
     const url = `/api/Recipes?userId=${userId}`;
 
-    return await fetchData(url, {
+    return await fetch(url, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -26,7 +24,7 @@ export async function postRecipe(userId, data) {
 export async function getRecipe(recipeId, userId) {
     const url = `/api/Recipes/${recipeId}?userId=${userId}`;
 
-    return await fetchData(url, {
+    return await fetch(url, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
@@ -37,7 +35,7 @@ export async function getRecipe(recipeId, userId) {
 export async function deleteRecipe(recipeId, userId) {
     const url = `/api/Recipes/${recipeId}?userId=${userId}`;
 
-    return await fetchData(url, {
+    return await fetch(url, {
         method: "DELETE",
         headers: {
             "Content-Type": "application/json",
@@ -48,7 +46,7 @@ export async function deleteRecipe(recipeId, userId) {
 export async function modifyRecipe(userId, recipeId, data) {
     const url = `/api/Recipes/?userId=${userId}`;
 
-    return await fetchData(url, {
+    return await fetch(url, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json",

@@ -1,5 +1,3 @@
-import { fetchData } from './fetchData';
-
 export async function patchIngredient(action, ingredient) {
     let payload = {
         "createEntities": [],
@@ -20,7 +18,7 @@ export async function patchIngredient(action, ingredient) {
     //console.log(JSON.stringify(payload));
 
     const url = `/api/RecipeIngredients`;
-    return await fetchData(url, {
+    return await fetch(url, {
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json',
@@ -31,7 +29,7 @@ export async function patchIngredient(action, ingredient) {
 
 export async function getIngredients() {
     const url = `/api/Ingredients`;
-    return await fetchData(url, {
+    return await fetch(url, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

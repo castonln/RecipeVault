@@ -1,7 +1,5 @@
-import { fetchData } from "./fetchData";
-
 export async function signUp(credentials) {
-    return await fetchData("/api/Authentication/signup",
+    return await fetch("/api/Authentication/signup",
         {
             method: "POST",
             headers: {
@@ -12,7 +10,7 @@ export async function signUp(credentials) {
 }
 
 export async function logIn(credentials) {
-    return await fetchData("/api/Authentication/login", {
+    return await fetch("/api/Authentication/login", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
