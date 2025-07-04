@@ -1,7 +1,7 @@
 import { useContext, useState } from 'react';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import {
-  Box, IconButton, Paper, TextField, Typography
+  Box, CircularProgress, IconButton, Paper, TextField, Typography
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import CheckIcon from '@mui/icons-material/Check';
@@ -10,8 +10,10 @@ import EditIcon from '@mui/icons-material/Edit';
 import DragHandleIcon from '@mui/icons-material/DragHandle';
 import { patchInstructions } from '../../network/instructionsApi';
 import { RecipeContext } from '../../context/RecipeContext';
+import { useErrorContext } from '../../context/ErrorContext';
 
 const RecipeInstructions = () => {
+  const { showError } = useErrorContext();
   const recipe = useContext(RecipeContext);
   const recipeId = recipe.id;
 
@@ -19,6 +21,8 @@ const RecipeInstructions = () => {
   const [instructions, setInstructions] = useState(recipe.instructions || []);
 
   const [editedInstructions, setEditedInstructions] = useState([]);
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleEditClick = () => {
     const cloned = JSON.parse(JSON.stringify(instructions)).map(inst => ({
@@ -92,6 +96,7 @@ const RecipeInstructions = () => {
     };
 
     try {
+      setIsLoading(true);
       const deleteResp = await patchInstructions(deletePayload);
       const deleteData = await deleteResp.json();
       const response = await patchInstructions(createPayload);
@@ -100,6 +105,9 @@ const RecipeInstructions = () => {
       setIsEditing(false);
     } catch (err) {
       console.error('Error saving instructions:', err);
+      showError('Failed to save instructions.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -118,8 +126,15 @@ const RecipeInstructions = () => {
 
       }}>
         <Typography variant="h6">Instructions</Typography>
-        <IconButton onClick={isEditing ? handleSaveClick : handleEditClick} sx={{ color: 'white' }}>
-          {isEditing ? <CheckIcon /> : <EditIcon />}
+        <IconButton onClick={isEditing ? isLoading ? undefined : handleSaveClick : handleEditClick} sx={{ color: 'white' }}>
+          {isEditing ?
+            isLoading ?
+              <CircularProgress size={24} color='inherit' />
+              :
+              <CheckIcon />
+            :
+            <EditIcon />
+          }
         </IconButton>
       </Box>
 
@@ -164,10 +179,10 @@ const RecipeInstructions = () => {
       ) : (
         <Box sx={instructions.length > 0 ? { p: 2 } : {}}>
           {instructions.map((step, index) => (
-          <Box key={index} sx={{ display: 'flex', mb: 1 }}>
-            <Box sx={{ minWidth: 24, mr: 2 }}>{index + 1}.</Box>
-            <Typography>{step.description}</Typography>
-          </Box>
+            <Box key={index} sx={{ display: 'flex', mb: 1 }}>
+              <Box sx={{ minWidth: 24, mr: 2 }}>{index + 1}.</Box>
+              <Typography>{step.description}</Typography>
+            </Box>
           ))}
         </Box>
       )}

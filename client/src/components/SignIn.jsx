@@ -1,4 +1,4 @@
-import { Stack, Paper, Box, TextField, Typography, Button } from "@mui/material";
+import { Stack, Paper, Box, TextField, Typography, Button, CircularProgress } from "@mui/material";
 import { NavLink, useNavigate } from "react-router";
 import { ROUTES } from "../utils/router";
 import { logIn } from "../network/authApi";
@@ -11,17 +11,30 @@ const SignIn = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState('');
+
     const handleSubmit = async (event) => {
         event.preventDefault();
+        setIsLoading(true);
+        setError('');
 
-        const response = await logIn({
-            username,
-            password
-        });
+        try {
+            const response = await logIn({ username, password });
 
-        if (response.status == 200) {
-            const newUserId = await response.json();
-            setUserId(newUserId);
+            if (response.status === 200) {
+                const newUserId = await response.json();
+                setUserId(newUserId);
+            } else if (response.status === 401) {
+                setError('Invalid username or password.');
+            } else {
+                setError('Something went wrong. Please try again.');
+            }
+        } catch (err) {
+            console.error("Login failed:", err);
+            setError('Network error or unexpected response.');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -68,7 +81,16 @@ const SignIn = () => {
                         type="password"
                         sx={{ marginBottom: "20px" }} />
 
-                    <Button type="submit" variant="contained" fullWidth>Sign In</Button>
+                    {error && (
+                        <Typography color="error" sx={{ marginBottom: '20px', textAlign: 'center' }}>
+                            {error}
+                        </Typography>
+                    )}
+
+
+                    <Button type="submit" variant="contained" fullWidth>
+                        {isLoading ? <CircularProgress size={24} color="inherit" /> : "Sign In"}
+                    </Button>
 
                     <Typography sx={{
                         marginTop: "20px",

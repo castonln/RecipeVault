@@ -1,7 +1,7 @@
 import { ArrowBack, Delete, Share } from '@mui/icons-material';
 import CheckIcon from '@mui/icons-material/Check';
 import EditIcon from '@mui/icons-material/Edit';
-import { Box, FormControl, Grid, IconButton, Input, InputBase, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
+import { Box, CircularProgress, FormControl, Grid, IconButton, Input, InputBase, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -9,14 +9,67 @@ import { useAuth } from '../../context/AuthContext.jsx';
 import { RecipeContext } from '../../context/RecipeContext.js';
 import { deleteRecipe, modifyRecipe } from '../../network/recipesApi.js';
 import { ROUTES } from '../../utils/router.jsx';
+import { useErrorContext } from '../../context/ErrorContext.jsx';
+
+const WhiteTextField = styled(TextField)(({ theme }) => ({
+  '& .MuiInputBase-input': {
+    color: 'white', // input text color
+  },
+  '& .MuiInputLabel-root': {
+    color: 'rgba(255, 255, 255, 0.8)', // label color
+  },
+  '& .MuiInputLabel-root.Mui-focused': {
+    color: 'white', // focused label color
+  },
+  '& .MuiInput-underline:before': {
+    borderBottom: '1px solid rgba(255, 255, 255, 0.5)', // unfocused underline
+  },
+  '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
+    borderBottom: '1px solid white', // hover underline
+  },
+  '& .MuiInput-underline:after': {
+    borderBottom: '2px solid white', // focused underline
+  },
+}));
+
+const WhiteSelect = styled(Select)(({ theme }) => ({
+  color: 'white',
+  '& .MuiSelect-icon': {
+    color: 'white',
+  },
+  '& .MuiInput-underline:before': {
+    borderBottom: '1px solid rgba(255, 255, 255, 0.5)',
+  },
+  '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
+    borderBottom: '1px solid white',
+  },
+  '& .MuiInput-underline:after': {
+    borderBottom: '2px solid white',
+  },
+}));
+
+const WhiteInput = styled(Input)(({ theme }) => ({
+  color: 'white',
+  '&:before': {
+    borderBottom: '1px solid rgba(255, 255, 255, 0.5)',
+  },
+  '&:hover:not(.Mui-disabled):before': {
+    borderBottom: '1px solid white',
+  },
+  '&:after': {
+    borderBottom: '2px solid white',
+  },
+}));
 
 const RecipeDetails = () => {
   const navigate = useNavigate();
+  const { showError } = useErrorContext();
   const recipe = useContext(RecipeContext);
   const recipeId = recipe.id;
   const { userId } = useAuth();
 
   const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [title, setTitle] = useState(recipe.name);
   const [description, setDescription] = useState(recipe.description);
@@ -30,58 +83,6 @@ const RecipeDetails = () => {
     cookTime,
   });
 
-  const WhiteTextField = styled(TextField)(({ theme }) => ({
-    '& .MuiInputBase-input': {
-      color: 'white', // input text color
-    },
-    '& .MuiInputLabel-root': {
-      color: 'rgba(255, 255, 255, 0.8)', // label color
-    },
-    '& .MuiInputLabel-root.Mui-focused': {
-      color: 'white', // focused label color
-    },
-    '& .MuiInput-underline:before': {
-      borderBottom: '1px solid rgba(255, 255, 255, 0.5)', // unfocused underline
-    },
-    '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
-      borderBottom: '1px solid white', // hover underline
-    },
-    '& .MuiInput-underline:after': {
-      borderBottom: '2px solid white', // focused underline
-    },
-  }));
-
-  const WhiteSelect = styled(Select)(({ theme }) => ({
-    color: 'white',
-    '& .MuiSelect-icon': {
-      color: 'white',
-    },
-    '& .MuiInput-underline:before': {
-      borderBottom: '1px solid rgba(255, 255, 255, 0.5)',
-    },
-    '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
-      borderBottom: '1px solid white',
-    },
-    '& .MuiInput-underline:after': {
-      borderBottom: '2px solid white',
-    },
-  }));
-
-  const WhiteInput = styled(Input)(({ theme }) => ({
-    color: 'white',
-    '&:before': {
-      borderBottom: '1px solid rgba(255, 255, 255, 0.5)',
-    },
-    '&:hover:not(.Mui-disabled):before': {
-      borderBottom: '1px solid white',
-    },
-    '&:after': {
-      borderBottom: '2px solid white',
-    },
-  }));
-
-
-
   const handleEditClick = () => {
     setTempState({ title, description, prepTime, cookTime });
     setIsEditing(true);
@@ -90,6 +91,7 @@ const RecipeDetails = () => {
   const handleSaveClick = async () => {
 
     try {
+      setIsLoading(true);
       const response = await modifyRecipe(userId, recipeId, tempState);
 
       if (response.ok) {
@@ -100,23 +102,32 @@ const RecipeDetails = () => {
         setIsEditing(false);
       } else {
         console.error("Failed to save recipe");
+        showError('Failed to save recipe: Bad server response.');
       }
     } catch (error) {
       console.error("Error saving recipe:", error);
+      showError('Failed to save recipe.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleDeleteClick = async () => {
     try {
+      setIsLoading(true);
       const response = await deleteRecipe(recipe.id, userId);
 
       if (response.ok) {
         navigate(ROUTES.RECIPEBOOK.path);
       } else {
         console.error("Failed to delete recipe");
+        showError('Failed to delete recipe: Bad server response.');
       }
     } catch (error) {
       console.error("Error deleting recipe:", error);
+      showError('Failed to delete recipe.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -139,14 +150,25 @@ const RecipeDetails = () => {
         </IconButton>
 
         <Stack direction='row'>
-          <IconButton onClick={isEditing ? handleSaveClick : handleEditClick} sx={{ color: 'white' }}>
-            {isEditing ? <CheckIcon /> : <EditIcon />}
+          <IconButton onClick={isEditing ? isLoading ? undefined : handleSaveClick : handleEditClick} sx={{ color: 'white' }}>
+            {isEditing ?
+              isLoading ?
+                <CircularProgress size={24} color='inherit' />
+                :
+                <CheckIcon />
+              :
+              <EditIcon />
+            }
           </IconButton>
           <IconButton sx={{ color: 'white' }}>
             <Share />
           </IconButton>
-          <IconButton sx={{ color: 'white' }} onClick={handleDeleteClick}>
-            <Delete />
+          <IconButton sx={{ color: 'white' }} onClick={isLoading ? undefined : handleDeleteClick}>
+            {isLoading ?
+              <CircularProgress size={24} color='inherit' />
+              :
+              <Delete />
+            }
           </IconButton>
         </Stack>
       </Stack>

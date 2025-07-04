@@ -2,16 +2,18 @@ import AddIcon from '@mui/icons-material/Add';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
-import { Box, IconButton, Paper, Typography } from '@mui/material';
+import { Box, CircularProgress, IconButton, Paper, Typography } from '@mui/material';
 import { useContext, useState } from 'react';
-import EditIngredientDialog from './EditIngredientDialog';
+import { useErrorContext } from '../../context/ErrorContext';
+import { IngredientsContext } from '../../context/IngredientsContext';
 import { RecipeContext } from '../../context/RecipeContext';
 import { patchIngredient } from '../../network/ingredientsApi';
-import { IngredientsContext } from '../../context/IngredientsContext';
+import EditIngredientDialog from './EditIngredientDialog';
 
 const RecipeIngredients = () => {
 	const ingredientsList = useContext(IngredientsContext);
 	const recipe = useContext(RecipeContext);
+	const { showError } = useErrorContext();
 
 	const [ingredients, setIngredients] = useState(recipe.recipeIngredients);
 
@@ -19,6 +21,8 @@ const RecipeIngredients = () => {
 
 	const [editDialogOpen, setEditDialogOpen] = useState(false);
 	const [ingredientToEdit, setIngredientToEdit] = useState(null);
+
+	const [isLoading, setIsLoading] = useState(false);
 
 	const handleEditClick = () => {
 		setIsEditing(true);
@@ -34,41 +38,67 @@ const RecipeIngredients = () => {
 	};
 
 	const handleIngredientCreate = async (ingredientToCreate) => {
-		const response = await patchIngredient('create', ingredientToCreate);
-		const data = await response.json();
-		const newIngredient = data.createEntities[0];
-		newIngredient.ingredient = ingredientsList.find(i => i.id === newIngredient.ingredientId); 	// get the coordinated ingredient object since it isn't returned by default
-		setIngredients([...ingredients, newIngredient]);
-		setEditDialogOpen(false);
+		try {
+			setIsLoading(true);
+			const response = await patchIngredient('create', ingredientToCreate);
+			const data = await response.json();
+			const newIngredient = data.createEntities[0];
+			newIngredient.ingredient = ingredientsList.find(i => i.id === newIngredient.ingredientId); 	// get the coordinated ingredient object since it isn't returned by default
+			setIngredients([...ingredients, newIngredient]);
+			setEditDialogOpen(false);
+		} catch (error) {
+			console.error('Error creating ingredient:', error);
+			showError('Failed to create ingredient.');
+		} finally {
+			setIsLoading(false);
+		}
+
 	};
 
 	const handleIngredientUpdate = async (ingredientToUpdate) => {
-		const response = await patchIngredient('update', ingredientToUpdate);
-		const data = await response.json();
-		const updatedIngredient = {
-			...data.updateEntities[0],
-			ingredient: ingredientsList.find(i => i.id === data.updateEntities[0].ingredientId)
-		};	// get the coordinated ingredient object since it isn't returned by default
+		try {
+			setIsLoading(true);
+			const response = await patchIngredient('update', ingredientToUpdate);
+			const data = await response.json();
+			const updatedIngredient = {
+				...data.updateEntities[0],
+				ingredient: ingredientsList.find(i => i.id === data.updateEntities[0].ingredientId)
+			};	// get the coordinated ingredient object since it isn't returned by default
+			// the backend returns an obejct with a null ingredient field by default
 
+			setIngredients((prev) =>
+				prev.map((ingredient) =>
+					ingredient.id === updatedIngredient.id ? updatedIngredient : ingredient
+				)
+			);
 
-		setIngredients((prev) =>
-			prev.map((ingredient) =>
-				ingredient.id === updatedIngredient.id ? updatedIngredient : ingredient
-			)
-		);
-
-		setEditDialogOpen(false);
+			setEditDialogOpen(false);
+		} catch (error) {
+			console.error('Error updating ingredient:', error);
+			showError('Failed to update ingredient.');
+		} finally {
+			setIsLoading(false);
+		}
 	};
 
 
 	const handleDeleteIngredient = async (ingredientToDelete) => {
-		await patchIngredient('delete', ingredientToDelete);
+		try {
+			setIsLoading(true);
+			await patchIngredient('delete', ingredientToDelete);
 
-		const updated = ingredients.filter(
-			(ingredient) => ingredient.id !== ingredientToDelete.id
-		);
+			const updated = ingredients.filter(
+				(ingredient) => ingredient.id !== ingredientToDelete.id
+			);
 
-		setIngredients(updated);
+			setIngredients(updated);
+		} catch (error) {
+			console.error('Error deleting ingredient:', error);
+			showError('Failed to delete ingredient.');
+		} finally {
+			setIsLoading(false);
+		}
+
 	};
 
 	const handleAddIngredient = () => {
@@ -93,8 +123,15 @@ const RecipeIngredients = () => {
 					}}
 				>
 					<Typography variant="h6">Ingredients</Typography>
-					<IconButton onClick={isEditing ? handleSaveClick : handleEditClick} sx={{ color: 'white' }}>
-						{isEditing ? <CheckIcon /> : <EditIcon />}
+					<IconButton onClick={isEditing ? isLoading ? undefined : handleSaveClick : handleEditClick} sx={{ color: 'white' }}>
+						{isEditing ?
+							isLoading ?
+								<CircularProgress size={24} color='inherit' />
+								:
+								<CheckIcon />
+							:
+							<EditIcon />
+						}
 					</IconButton>
 				</Box>
 
@@ -155,6 +192,7 @@ const RecipeIngredients = () => {
 				onUpdate={handleIngredientUpdate}
 				initialData={ingredientToEdit}
 				existingIngredientIds={ingredients.map(i => i.ingredientId)}
+				isLoading={isLoading}
 			/>
 		</>
 	);

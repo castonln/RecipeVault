@@ -1,4 +1,4 @@
-import { Stack } from "@mui/material";
+import { Box, CircularProgress, Stack } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
@@ -42,19 +42,31 @@ const RecipePage = () => {
         fetchIngredients();
     }, [recipeId, userId]);
 
-    if (!recipe) return <div>Loading recipe...</div>;
+    if (!recipe) return (
+        <Box sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            color: 'grey',
+            justifyContent: 'center',
+            height: '100vh',
+        }}>
+            <CircularProgress size={100} color='inherit' />
+            <Box sx={{ margin: 2, fontSize: 32 }}>Loading Recipe...</Box>
+        </Box>
+    );
 
-return (
-    <RecipeContext.Provider value={recipe}>
-        <RecipeDetails />
-        <Stack direction="column" spacing={2} sx={{ padding: "20px" }}>
-            <IngredientsContext.Provider value={ingredients}>
-                <RecipeIngredients />
-            </IngredientsContext.Provider>
-            <RecipeInstructions />
-        </Stack>
-    </RecipeContext.Provider>
-);
+    return (
+        <RecipeContext.Provider value={recipe}>
+            <RecipeDetails />
+            <Stack direction="column" spacing={2} sx={{ padding: "20px" }}>
+                <IngredientsContext.Provider value={ingredients}>
+                    <RecipeIngredients />
+                </IngredientsContext.Provider>
+                <RecipeInstructions />
+            </Stack>
+        </RecipeContext.Provider>
+    );
 }
 
 export default RecipePage;

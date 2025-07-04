@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Stack, Paper, Box, TextField, Typography, Button } from "@mui/material";
+import { Stack, Paper, Box, TextField, Typography, Button, CircularProgress } from "@mui/material";
 import { NavLink, useNavigate } from "react-router";
 import { ROUTES } from "../utils/router";
 import { signUp } from "../network/authApi";
@@ -13,16 +13,19 @@ const SignUp = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [reenterPassword, setReenterPassword] = useState("");
+
     const [error, setError] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
 
+        setIsLoading(true);
         setError(null);
 
-        // Simple password match validation
         if (password !== reenterPassword) {
             setError("Passwords do not match");
+            setIsLoading(false);
             return;
         }
 
@@ -39,6 +42,8 @@ const SignUp = () => {
         } catch (err) {
             setError("An error occurred during signup.");
             console.error(err);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -113,7 +118,7 @@ const SignUp = () => {
                     />
 
                     <Button type="submit" variant="contained" fullWidth>
-                        Sign Up
+                        {isLoading ? <CircularProgress size={24} color="inherit" /> : "Sign Up"}
                     </Button>
 
                     <Typography

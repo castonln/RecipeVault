@@ -1,15 +1,18 @@
 import { CssBaseline } from '@mui/material'
-import { createContext, StrictMode } from 'react'
+import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { RouterProvider } from 'react-router-dom'
-import { router } from './utils/router'
 import { AuthProvider } from './context/AuthContext'
+import { ErrorProvider } from './context/ErrorContext'
+import { router } from './utils/router'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <CssBaseline />
     <AuthProvider>
-      <RouterProvider router={router} />
+      <ErrorProvider>
+        <RouterProvider router={router} />
+      </ErrorProvider>
     </AuthProvider>
   </StrictMode>,
 )

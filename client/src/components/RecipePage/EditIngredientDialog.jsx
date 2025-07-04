@@ -1,5 +1,5 @@
 import CloseIcon from '@mui/icons-material/Close';
-import { Autocomplete, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormHelperText, IconButton, InputLabel, MenuItem, Select, TextField } from '@mui/material';
+import { Autocomplete, Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormHelperText, IconButton, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import { useContext, useEffect, useState } from 'react';
 import { RecipeContext } from '../../context/RecipeContext';
 import { IngredientsContext } from '../../context/IngredientsContext';
@@ -7,7 +7,7 @@ import createIngredientObject from './createIngredientObject';
 
 const unitOptions = ['g', 'kg', 'ml', 'l', 'tsp', 'tbsp', 'cup', 'cups', 'pcs'];
 
-const EditIngredientDialog = ({ open, onClose, onCreate, onUpdate, initialData, existingIngredientIds }) => {
+const EditIngredientDialog = ({ open, onClose, onCreate, onUpdate, initialData, existingIngredientIds, isLoading }) => {
 	const { id: recipeId } = useContext(RecipeContext);
 	const ingredientsList = useContext(IngredientsContext);
 
@@ -18,7 +18,6 @@ const EditIngredientDialog = ({ open, onClose, onCreate, onUpdate, initialData, 
 	const [ingredientError, setIngredientError] = useState(false);
 	const [quantityError, setQuantityError] = useState(false);
 	const [unitError, setUnitError] = useState(false);
-
 
 	useEffect(() => {
 		setIngredient(initialData?.ingredient || {});
@@ -171,7 +170,7 @@ const EditIngredientDialog = ({ open, onClose, onCreate, onUpdate, initialData, 
 			<DialogActions>
 				<Button onClick={onClose}>Cancel</Button>
 				<Button onClick={handleSave} variant="contained" color="primary">
-					Save
+					{isLoading ? <CircularProgress size={24} color="inherit" /> : "Save"}
 				</Button>
 			</DialogActions>
 		</Dialog>
