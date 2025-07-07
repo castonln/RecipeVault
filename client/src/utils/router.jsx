@@ -1,9 +1,10 @@
-import { createBrowserRouter, createRoutesFromElements, Route } from "react-router";
-import SignIn from "../components/SignIn";
+import { createBrowserRouter, createRoutesFromElements, Navigate, Route } from "react-router";
 import RecipeBook from "../components/RecipeBook";
-import RequiresAuth from "./RequiresAuth";
-import SignUp from "../components/SignUp";
 import RecipePage from "../components/RecipePage/RecipePage";
+import SignIn from "../components/SignIn";
+import SignUp from "../components/SignUp";
+import RequiresAuth from "./RequiresAuth";
+import RequiresNoAuth from "./RequiresNoAuth";
 
 export const ROUTES = {
   RECIPEBOOK: {
@@ -15,11 +16,17 @@ export const ROUTES = {
   },
   SIGNUP: {
     path: "/signup",
-    element: <SignUp />
+    element:
+      <RequiresNoAuth>
+        <SignUp />
+      </RequiresNoAuth>
   },
   SIGNIN: {
     path: "/signin",
-    element: <SignIn />,
+    element:
+      <RequiresNoAuth>
+        <SignIn />
+      </RequiresNoAuth>
   },
   RECIPEPAGE: {
     path: "/recipe/:recipeId",
@@ -28,7 +35,7 @@ export const ROUTES = {
         <RecipePage />
       </RequiresAuth>
   }
-}
+};
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
