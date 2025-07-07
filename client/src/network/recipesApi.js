@@ -1,5 +1,7 @@
+const API_URL = import.meta.env.VITE_API_URL;
+
 export async function getRecipes(userId) {
-    const url = `/api/Recipes?userId=${userId}`;
+    const url = `${API_URL}/Recipes?userId=${userId}`;
 
     return await fetch(url, {
         method: "GET",
@@ -10,7 +12,7 @@ export async function getRecipes(userId) {
 }
 
 export async function postRecipe(userId, data) {
-    const url = `/api/Recipes?userId=${userId}`;
+    const url = `${API_URL}/Recipes?userId=${userId}`;
 
     return await fetch(url, {
         method: "POST",
@@ -22,7 +24,7 @@ export async function postRecipe(userId, data) {
 }
 
 export async function getRecipe(recipeId, userId) {
-    const url = `/api/Recipes/${recipeId}?userId=${userId}`;
+    const url = `${API_URL}/Recipes/${recipeId}?userId=${userId}`;
 
     return await fetch(url, {
         method: "GET",
@@ -33,7 +35,7 @@ export async function getRecipe(recipeId, userId) {
 }
 
 export async function deleteRecipe(recipeId, userId) {
-    const url = `/api/Recipes/${recipeId}?userId=${userId}`;
+    const url = `${API_URL}/Recipes/${recipeId}?userId=${userId}`;
 
     return await fetch(url, {
         method: "DELETE",
@@ -44,7 +46,7 @@ export async function deleteRecipe(recipeId, userId) {
 }
 
 export async function modifyRecipe(userId, recipeId, data) {
-    const url = `/api/Recipes/?userId=${userId}`;
+    const url = `${API_URL}/Recipes/?userId=${userId}`;
 
     return await fetch(url, {
         method: "PUT",
