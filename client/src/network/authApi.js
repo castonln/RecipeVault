@@ -1,5 +1,7 @@
+const API_URL = import.meta.env.VITE_API_URL;
+
 export async function signUp(credentials) {
-    return await fetch("/api/Authentication/signup",
+    return await fetch(`${API_URL}/Authentication/signup`,
         {
             method: "POST",
             headers: {
@@ -10,7 +12,8 @@ export async function signUp(credentials) {
 }
 
 export async function logIn(credentials) {
-    return await fetch("/api/Authentication/login", {
+    console.log(import.meta.env.VITE_API_URL);
+    return await fetch(`${API_URL}/Authentication/login`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",

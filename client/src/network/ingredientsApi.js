@@ -1,3 +1,5 @@
+const API_URL = import.meta.env.VITE_API_URL;
+
 export async function patchIngredient(action, ingredient) {
     let payload = {
         "createEntities": [],
@@ -17,7 +19,7 @@ export async function patchIngredient(action, ingredient) {
     
     //console.log(JSON.stringify(payload));
 
-    const url = `/api/RecipeIngredients`;
+    const url = `${API_URL}/RecipeIngredients`;
     return await fetch(url, {
         method: 'PATCH',
         headers: {
@@ -28,7 +30,7 @@ export async function patchIngredient(action, ingredient) {
 }
 
 export async function getIngredients() {
-    const url = `/api/Ingredients`;
+    const url = `${API_URL}/Ingredients`;
     return await fetch(url, {
         method: 'GET',
         headers: {
