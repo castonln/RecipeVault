@@ -1,161 +1,170 @@
+import { useContext, useState } from 'react';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
+import {
+  Box, CircularProgress, IconButton, Paper, TextField, Typography
+} from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
-import DragHandleIcon from '@mui/icons-material/DragHandle';
 import EditIcon from '@mui/icons-material/Edit';
-import { Box, IconButton, Paper, TextField, Typography } from '@mui/material';
-import { useState } from 'react';
+import DragHandleIcon from '@mui/icons-material/DragHandle';
+import { patchInstructions } from '../../network/instructionsApi';
+import { RecipeContext } from '../../context/RecipeContext';
+import { useErrorContext } from '../../context/ErrorContext';
 
 const RecipeInstructions = () => {
+  const { showError } = useErrorContext();
+  const recipe = useContext(RecipeContext);
+  const recipeId = recipe.id;
+
   const [isEditing, setIsEditing] = useState(false);
+  const [instructions, setInstructions] = useState(recipe.instructions || []);
 
-  {/* Temporary Instructions (will retrieve from database */}
-  const [instructions, setInstructions] = useState([
-    'Preheat the oven to 350°F (175°C).',
-    'Mix the dry ingredients together.',
-    'Add wet ingredients and stir until combined.',
-    'Pour batter into a pan and bake for 30 minutes.'
-  ]);
+  const [editedInstructions, setEditedInstructions] = useState([]);
 
-  const handleEditClick = () => setIsEditing(true);
-  const handleSaveClick = () => setIsEditing(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleEditClick = () => {
+    const cloned = JSON.parse(JSON.stringify(instructions)).map(inst => ({
+      ...inst,
+      id: undefined,
+    }));
+
+    setEditedInstructions(cloned);
+    setIsEditing(true);
+  };
 
   const handleInstructionChange = (index, value) => {
-    const updated = [...instructions];
-    updated[index] = value;
-    setInstructions(updated);
+    const updated = [...editedInstructions];
+    updated[index].description = value;
+    setEditedInstructions(updated);
   };
 
   const handleDeleteInstruction = (index) => {
-    const updated = [...instructions];
+    const updated = [...editedInstructions];
     updated.splice(index, 1);
-    setInstructions(updated);
+    setEditedInstructions(updated);
   };
 
   const handleAddInstruction = () => {
-    setInstructions([...instructions, 'New step...']);
+    setEditedInstructions([
+      ...editedInstructions,
+      {
+        id: undefined,
+        recipeId: recipeId,
+        instructionNumber: editedInstructions.length,
+        description: 'New step...'
+      }
+    ]);
   };
 
   const handleDragEnd = (result) => {
     if (!result.destination) return;
-    const reordered = Array.from(instructions);
-    const [moved] = reordered.splice(result.source.index, 1);
-    reordered.splice(result.destination.index, 0, moved);
-    setInstructions(reordered);
+
+    const updated = [...editedInstructions];
+    const [movedItem] = updated.splice(result.source.index, 1);
+    updated.splice(result.destination.index, 0, movedItem);
+
+    // Update instruction numbers
+    const reordered = updated.map((item, index) => ({
+      ...item,
+      instructionNumber: index
+    }));
+
+    setEditedInstructions(reordered);
+  };
+
+  const handleSaveClick = async () => {
+    // const editedInstructionsIds = new Set(editedInstructions.map(item => item.id));
+    // const instructionsIds = new Set(instructions.map(item => item.id));
+
+    // const deleteInstructions = instructions.filter(item => !editedInstructionsIds.has(item.id));
+    // const createInstructions = editedInstructions.filter(item => item.id === undefined);
+    // const updateInstructions = editedInstructions.filter(item => instructionsIds.has(item.id));
+
+    // This is a stopgap solution until key error is fixed - LC
+    const deletePayload = {
+      "createEntities": [],
+      "updateEntities": [],
+      "deleteEntities": instructions,
+    };
+
+    const createPayload = {
+      "createEntities": editedInstructions,
+      "updateEntities": [],
+      "deleteEntities": [],
+    };
+
+    try {
+      setIsLoading(true);
+      const deleteResp = await patchInstructions(deletePayload);
+      const deleteData = await deleteResp.json();
+      const response = await patchInstructions(createPayload);
+      const data = await response.json();
+      setInstructions(data.createEntities);
+      setIsEditing(false);
+    } catch (err) {
+      console.error('Error saving instructions:', err);
+      showError('Failed to save instructions.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <Paper elevation={3} sx={{ mt: 4, borderRadius: 2, overflow: 'hidden' }}>
+      {/* Header */}
+      <Box sx={{
+        backgroundColor: 'primary.main',
+        color: 'white',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        p: 2,
+        borderTopLeftRadius: 8,
+        borderTopRightRadius: 8
 
-      {/* Title */}
-      <Box
-        sx={{
-          backgroundColor: 'primary.main',
-          color: 'white',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          p: 2,
-          borderTopLeftRadius: 8,
-          borderTopRightRadius: 8
-        }}
-      >
+      }}>
         <Typography variant="h6">Instructions</Typography>
-        <IconButton onClick={isEditing ? handleSaveClick : handleEditClick} sx={{ color: 'white' }}>
-          {isEditing ? <CheckIcon /> : <EditIcon />}
+        <IconButton onClick={isEditing ? isLoading ? undefined : handleSaveClick : handleEditClick} sx={{ color: 'white' }}>
+          {isEditing ?
+            isLoading ?
+              <CircularProgress size={24} color='inherit' />
+              :
+              <CheckIcon />
+            :
+            <EditIcon />
+          }
         </IconButton>
       </Box>
 
-      <Box>
-        {isEditing ? (
+      {/* Body */}
+      {isEditing ? (
+        <Box>
           <DragDropContext onDragEnd={handleDragEnd}>
             <Droppable droppableId="instructions">
               {(provided) => (
                 <Box ref={provided.innerRef} {...provided.droppableProps}>
-                  {instructions.map((step, index) => (
+                  {editedInstructions.map((step, index) => (
                     <Draggable key={index} draggableId={`step-${index}`} index={index}>
-                      {(provided, snapshot) => (
+                      {(provided) => (
                         <Box
                           ref={provided.innerRef}
                           {...provided.draggableProps}
-                          sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            backgroundColor: snapshot.isDragging ? 'action.hover' : 'inherit',
-                            borderRadius: 1,
-                            px: 2,
-                            py: 1.5,
-                            userSelect: 'none',
-                            mb: 1
-                          }}
+                          sx={{ display: 'flex', alignItems: 'center', paddingX: 2, paddingY: 1 }}
                         >
-                          {/* Step Number */}
-                          <Box
-                            sx={(theme) => ({
-                              minWidth: 24,
-                              mr: 2,
-                              fontWeight: 'bold',
-                              color: theme.palette.text.secondary,
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              fontSize: theme.typography.body1.fontSize,
-                              fontFamily: theme.typography.fontFamily,
-                              lineHeight: '30px',
-                              userSelect: 'none',
-                            })}
-                          >
-                            {index + 1}.
-                          </Box>
-
-                          {/* Editable Text */}
-                          <Box sx={{ flexGrow: 1 }}>
-                            <TextField
-                              fullWidth
-                              multiline
-                              variant="standard"
-                              value={step}
-                              onChange={(e) => handleInstructionChange(index, e.target.value)}
-                              slotProps={{
-                                style: {
-                                  fontSize: '16px',
-                                  lineHeight: '30px',
-                                  padding: 0,
-                                  minHeight: 30,
-                                  height: 30,
-                                  boxSizing: 'border-box',
-                                  userSelect: 'text',
-                                },
-                              }}
-                              sx={{
-                                '& .MuiInputBase-input': {
-                                  fontSize: '16px !important',
-                                  lineHeight: '30px !important',
-                                  height: '30px !important',
-                                  padding: 0,
-                                  boxSizing: 'border-box',
-                                }
-                              }}
-                            />
-                          </Box>
-
-                          {/* Delete & Drag Handle Buttons */}
-                          <Box sx={{ display: 'flex', alignItems: 'center', ml: 1 }}>
-                            <IconButton size="small" onClick={() => handleDeleteInstruction(index)}>
-                              <CloseIcon fontSize="small" />
-                            </IconButton>
-                            <Box
-                              {...provided.dragHandleProps}
-                              sx={{
-                                cursor: 'grab',
-                                ml: 1,
-                                color: 'text.secondary',
-                                userSelect: 'none'
-                              }}
-                            >
-                              <DragHandleIcon fontSize="small" />
-                            </Box>
+                          <Box sx={{ minWidth: 24, mr: 2 }}>{index + 1}.</Box>
+                          <TextField
+                            fullWidth
+                            variant="standard"
+                            value={step.description}
+                            onChange={(e) => handleInstructionChange(index, e.target.value)}
+                          />
+                          <IconButton onClick={() => handleDeleteInstruction(index)}>
+                            <CloseIcon />
+                          </IconButton>
+                          <Box {...provided.dragHandleProps}>
+                            <DragHandleIcon />
                           </Box>
                         </Box>
                       )}
@@ -166,56 +175,25 @@ const RecipeInstructions = () => {
               )}
             </Droppable>
           </DragDropContext>
-        ) : (
-          // Non-edit mode static list
-          <Box>
-            {instructions.map((step, index) => (
-              <Box
-                key={index}
-                sx={(theme) => ({
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  px: 2,
-                  py: 1.5,
-                  borderBottom: index !== instructions.length - 1 ? '1px solid #ddd' : 'none',
-                  userSelect: 'none'
-                })}
-              >
-                <Box
-                  sx={(theme) => ({
-                    minWidth: 24,
-                    mr: 2,
-                    fontWeight: 'bold',
-                    color: theme.palette.text.secondary,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: theme.typography.body1.fontSize,
-                    fontFamily: theme.typography.fontFamily,
-                    lineHeight: '30px',
-                    userSelect: 'none',
-                  })}
-                >
-                  {index + 1}.
-                </Box>
-
-                <Typography variant="body1" sx={{ lineHeight: '30px' }}>
-                  {step}
-                </Typography>
-              </Box>
-            ))}
-          </Box>
-        )}
-
-        {/* Add New Step Button */}
-        {isEditing && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', py: 2, mt: 2, borderTop: '1px solid #ddd' }}>
-            <IconButton onClick={handleAddInstruction} size="large" sx={{ height: "40px" }}>
-              <AddIcon fontSize="inherit" />
-            </IconButton>
-          </Box>
-        )}
-      </Box>
+        </Box>
+      ) : (
+        <Box sx={instructions.length > 0 ? { p: 2 } : {}}>
+          {instructions.map((step, index) => (
+            <Box key={index} sx={{ display: 'flex', mb: 1 }}>
+              <Box sx={{ minWidth: 24, mr: 2 }}>{index + 1}.</Box>
+              <Typography>{step.description}</Typography>
+            </Box>
+          ))}
+        </Box>
+      )}
+      {/* Add Step Button */}
+      {isEditing && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
+          <IconButton onClick={handleAddInstruction} size='large'>
+            <AddIcon fontSize='inherit' />
+          </IconButton>
+        </Box>
+      )}
     </Paper>
   );
 };
