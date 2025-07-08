@@ -20,7 +20,8 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowReactApp",
     builder => builder.WithOrigins(
                                     "https://recipevault-client.onrender.com", // Removed trailing slash
-                                    "http://localhost:5173") // added localhost for local development testing -LC
+                                    "http://localhost:5173",
+                                    "http://localhost:4173") // added localhosts for local development testing -LC
                       .AllowAnyHeader()
                       .AllowAnyMethod());
 });
