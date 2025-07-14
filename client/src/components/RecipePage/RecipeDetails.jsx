@@ -3,7 +3,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import EditIcon from '@mui/icons-material/Edit';
 import { Box, CircularProgress, FormControl, Grid, IconButton, Input, InputBase, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { RecipeContext } from '../../context/RecipeContext.js';
@@ -64,7 +64,7 @@ const WhiteInput = styled(Input)(({ theme }) => ({
 const RecipeDetails = () => {
   const navigate = useNavigate();
   const { showError } = useErrorContext();
-  const recipe = useContext(RecipeContext);
+  const { recipe, recipeMetadata } = useContext(RecipeContext);
   const recipeId = recipe.id;
   const { userId } = useAuth();
 
@@ -132,6 +132,10 @@ const RecipeDetails = () => {
   };
 
   const timeOptions = [5, 10, 15, 20, 30, 45, 60, 90, 120];
+
+  useEffect(() => {
+    console.log(recipeMetadata);
+  }, [recipeMetadata]);
 
   return (
     <Box sx={(theme) => ({

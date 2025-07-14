@@ -8,7 +8,7 @@ import createIngredientObject from './createIngredientObject';
 const unitOptions = ['g', 'kg', 'ml', 'l', 'tsp', 'tbsp', 'cup', 'cups', 'pcs'];
 
 const EditIngredientDialog = ({ open, onClose, onCreate, onUpdate, initialData, existingIngredientIds, isLoading }) => {
-	const { id: recipeId } = useContext(RecipeContext);
+	const { recipe: {id: recipeId} } = useContext(RecipeContext);
 	const ingredientsList = useContext(IngredientsContext);
 
 	const [ingredient, setIngredient] = useState({});

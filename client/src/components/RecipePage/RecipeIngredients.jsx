@@ -3,7 +3,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
 import { Box, CircularProgress, IconButton, Paper, Typography } from '@mui/material';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useErrorContext } from '../../context/ErrorContext';
 import { IngredientsContext } from '../../context/IngredientsContext';
 import { RecipeContext } from '../../context/RecipeContext';
@@ -12,10 +12,14 @@ import EditIngredientDialog from './EditIngredientDialog';
 
 const RecipeIngredients = () => {
 	const ingredientsList = useContext(IngredientsContext);
-	const recipe = useContext(RecipeContext);
+	const { recipe, recipeMetadata, fetchRecipeMetadata } = useContext(RecipeContext);
 	const { showError } = useErrorContext();
 
 	const [ingredients, setIngredients] = useState(recipe.recipeIngredients);
+	const updateIngredients = (data) => {
+		setIngredients(data);	// we want to call this bundled with the metadata so updates are accounted for
+		fetchRecipeMetadata();
+	}
 
 	const [isEditing, setIsEditing] = useState(false);
 
@@ -44,7 +48,7 @@ const RecipeIngredients = () => {
 			const data = await response.json();
 			const newIngredient = data.createEntities[0];
 			newIngredient.ingredient = ingredientsList.find(i => i.id === newIngredient.ingredientId); 	// get the coordinated ingredient object since it isn't returned by default
-			setIngredients([...ingredients, newIngredient]);
+			updateIngredients([...ingredients, newIngredient]);
 			setEditDialogOpen(false);
 		} catch (error) {
 			console.error('Error creating ingredient:', error);
@@ -66,7 +70,7 @@ const RecipeIngredients = () => {
 			};	// get the coordinated ingredient object since it isn't returned by default
 			// the backend returns an obejct with a null ingredient field by default
 
-			setIngredients((prev) =>
+			updateIngredients((prev) =>
 				prev.map((ingredient) =>
 					ingredient.id === updatedIngredient.id ? updatedIngredient : ingredient
 				)
@@ -91,7 +95,7 @@ const RecipeIngredients = () => {
 				(ingredient) => ingredient.id !== ingredientToDelete.id
 			);
 
-			setIngredients(updated);
+			updateIngredients(updated);
 		} catch (error) {
 			console.error('Error deleting ingredient:', error);
 			showError('Failed to delete ingredient.');

@@ -2,7 +2,7 @@ import { Box, CircularProgress, Stack } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { getRecipe } from "../../network/recipesApi";
+import { getRecipe, getRecipeMetadata } from "../../network/recipesApi";
 import RecipeDetails from "./RecipeDetails";
 import RecipeIngredients from "./RecipeIngredients";
 import RecipeInstructions from "./RecipeInstructions";
@@ -16,6 +16,17 @@ const RecipePage = () => {
 
     const [recipe, setRecipe] = useState(null);
     const [ingredients, setIngredients] = useState(null);
+    const [recipeMetadata, setRecipeMetadata] = useState(null);
+
+    const fetchRecipeMetadata = async () => {
+        try {
+            const response = await getRecipeMetadata(recipeId, userId);
+            const data = await response.json();
+            setRecipeMetadata(data);
+        } catch (error) {
+            console.error("Error fetching recipe metadata:", error);
+        }
+    }
 
     useEffect(() => {
         const fetchRecipe = async () => {
@@ -38,6 +49,7 @@ const RecipePage = () => {
             }
         };
 
+        fetchRecipeMetadata();
         fetchRecipe();
         fetchIngredients();
     }, [recipeId, userId]);
@@ -57,7 +69,7 @@ const RecipePage = () => {
     );
 
     return (
-        <RecipeContext.Provider value={recipe}>
+        <RecipeContext.Provider value={{ recipe, recipeMetadata, fetchRecipeMetadata }}>
             <RecipeDetails />
             <Stack direction="column" spacing={2} sx={{ padding: "20px" }}>
                 <IngredientsContext.Provider value={ingredients}>
