@@ -184,12 +184,6 @@ namespace server.Controllers
             }
             ComplexRecipeDTO complexRecipe = await rcpeSrvc.MapToComplexDTO(recipe);
 
-            // Get list of all of the ingredients from complexRecipe  
-            List<IngredientDTO> ingredients = complexRecipe.RecipeIngredients
-                .Select(x => x.Ingredient!) // Use null-forgiving operator to ensure non-null values  
-                .Where(ingredient => ingredient != null) // Filter out any null values  
-                .ToList();
-
             RecipeMetadataDTO meta = new()
             {
                 Calories = 0,
@@ -197,12 +191,13 @@ namespace server.Controllers
                 Carbs = 0,
                 Fats = 0
             };
-            foreach (IngredientDTO ingredient in ingredients)
+
+            foreach (var recipeIngredient in complexRecipe.RecipeIngredients)
             {
-                meta.Calories += ingredient.Calories ?? 0;
-                meta.Protein += ingredient.Protein ?? 0;
-                meta.Carbs += ingredient.Carbs ?? 0;
-                meta.Fats += ingredient.Fats ?? 0;
+                meta.Calories += (recipeIngredient.Ingredient?.Calories ?? 0) * recipeIngredient.Quantity;
+                meta.Protein += (recipeIngredient.Ingredient?.Protein ?? 0) * recipeIngredient.Quantity;
+                meta.Carbs += (recipeIngredient.Ingredient?.Carbs ?? 0) * recipeIngredient.Quantity;
+                meta.Fats += (recipeIngredient.Ingredient?.Fats ?? 0) * recipeIngredient.Quantity;
             }
 
             // Return metadata  
