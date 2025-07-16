@@ -311,7 +311,7 @@ const RecipeDetails = () => {
             Calories
           </Typography>
           <Typography variant="h6" sx={{ fontWeight: 700, marginBottom: 0.5 }}>
-            {Math.round(recipeMetadata.calories)} Cal
+            {Math.round(recipeMetadata?.calories)} Cal
           </Typography>
         </Box>
 
@@ -321,7 +321,7 @@ const RecipeDetails = () => {
             Protein
           </Typography>
           <Typography variant="h6" sx={{ fontWeight: 700, marginBottom: 0.5 }}>
-            {Math.round(recipeMetadata.protein)} g
+            {Math.round(recipeMetadata?.protein)} g
           </Typography>
         </Box>
 
@@ -331,7 +331,7 @@ const RecipeDetails = () => {
             Carbs
           </Typography>
           <Typography variant="h6" sx={{ fontWeight: 700, marginBottom: 0.5 }}>
-            {Math.round(recipeMetadata.carbs)} g
+            {Math.round(recipeMetadata?.carbs)} g
           </Typography>
         </Box>
 
@@ -341,7 +341,7 @@ const RecipeDetails = () => {
             Fats
           </Typography>
           <Typography variant="h6" sx={{ fontWeight: 700, marginBottom: 0.5 }}>
-            {Math.round(recipeMetadata.fats)} g
+            {Math.round(recipeMetadata?.fats)} g
           </Typography>
         </Box>
       </Grid>
