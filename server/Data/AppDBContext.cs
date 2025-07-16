@@ -22,6 +22,8 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<RecipeIngredient> RecipeIngredients { get; set; }
 
+    public virtual DbSet<SharedRecipe> SharedRecipes { get; set; }
+
     public virtual DbSet<User> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) =>
@@ -147,6 +149,36 @@ public partial class AppDbContext : DbContext
                 .HasForeignKey(d => d.RecipeId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("recipe_ingredients_recipe_id_fkey");
+        });
+
+        modelBuilder.Entity<SharedRecipe>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("shared_recipes_pkey");
+
+            entity.ToTable("shared_recipes");
+
+            entity.Property(e => e.Id)
+                .HasDefaultValueSql("gen_random_uuid()")
+                .HasColumnName("id");
+            entity.Property(e => e.RecipeId).HasColumnName("recipe_id");
+            entity.Property(e => e.ShareDate).HasColumnName("share_date");
+            entity.Property(e => e.SharedBy).HasColumnName("shared_by");
+            entity.Property(e => e.SharedWith).HasColumnName("shared_with");
+
+            entity.HasOne(d => d.Recipe).WithMany(p => p.SharedRecipes)
+                .HasForeignKey(d => d.RecipeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("shared_recipes_recipe_id_fkey");
+
+            entity.HasOne(d => d.SharedByNavigation).WithMany(p => p.SharedRecipeSharedByNavigations)
+                .HasForeignKey(d => d.SharedBy)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("shared_recipes_shared_by_fkey");
+
+            entity.HasOne(d => d.SharedWithNavigation).WithMany(p => p.SharedRecipeSharedWithNavigations)
+                .HasForeignKey(d => d.SharedWith)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("shared_recipes_shared_with_fkey");
         });
 
         modelBuilder.Entity<User>(entity =>

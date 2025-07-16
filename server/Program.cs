@@ -35,6 +35,7 @@ builder.Services.AddScoped<InstructionsService>();
 builder.Services.AddScoped<IngredientsService>();
 builder.Services.AddScoped<RecipeIngredientsService>();
 builder.Services.AddScoped<AuthenticationService>();
+builder.Services.AddScoped<SharedRecipesService>();
 
 var app = builder.Build();
 
