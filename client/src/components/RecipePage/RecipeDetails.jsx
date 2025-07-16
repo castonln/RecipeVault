@@ -133,10 +133,6 @@ const RecipeDetails = () => {
 
   const timeOptions = [5, 10, 15, 20, 30, 45, 60, 90, 120];
 
-  useEffect(() => {
-    console.log(recipeMetadata);
-  }, [recipeMetadata]);
-
   return (
     <Box sx={(theme) => ({
       padding: 2.5,
@@ -315,7 +311,7 @@ const RecipeDetails = () => {
             Calories
           </Typography>
           <Typography variant="h6" sx={{ fontWeight: 700, marginBottom: 0.5 }}>
-            320
+            {Math.round(recipeMetadata.calories)} Cal
           </Typography>
         </Box>
 
@@ -325,7 +321,7 @@ const RecipeDetails = () => {
             Protein
           </Typography>
           <Typography variant="h6" sx={{ fontWeight: 700, marginBottom: 0.5 }}>
-            12g
+            {Math.round(recipeMetadata.protein)} g
           </Typography>
         </Box>
 
@@ -335,7 +331,17 @@ const RecipeDetails = () => {
             Carbs
           </Typography>
           <Typography variant="h6" sx={{ fontWeight: 700, marginBottom: 0.5 }}>
-            45g
+            {Math.round(recipeMetadata.carbs)} g
+          </Typography>
+        </Box>
+
+        {/* Fats */}
+        <Box>
+          <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontWeight: 500 }}>
+            Fats
+          </Typography>
+          <Typography variant="h6" sx={{ fontWeight: 700, marginBottom: 0.5 }}>
+            {Math.round(recipeMetadata.fats)} g
           </Typography>
         </Box>
       </Grid>
