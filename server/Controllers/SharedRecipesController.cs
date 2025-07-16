@@ -77,5 +77,43 @@ namespace server.Controllers
 
             return CreatedAtAction(null, new { id = resultDto.Id }, resultDto);
         }
+
+
+        [HttpGet]
+        public async Task<IActionResult> GetSharedWithUser([FromQuery] Guid userId)
+        {
+            if (userId == Guid.Empty)
+            {
+                return BadRequest("Query parameter 'userId' is required.");
+            }
+
+            // Validate userId
+            var user = await usersService.GetByIdFromCacheOrDbAsync(userId);
+            if (user == null)
+            {
+                return UnprocessableEntity("userId is not a valid user.");
+            }
+
+            // Get all shared recipes for this user
+            var sharedRecipes = await shrdRcpeSrvc.GetFromCacheOrDbAsync();
+            var recipeIds = sharedRecipes
+                .Where(sr => sr.SharedWith == userId)
+                .Select(sr => sr.RecipeId)
+                .Distinct()
+                .ToList();
+
+            // Get all recipes and filter by those shared with the user
+            var allRecipes = await recipesService.GetFromCacheOrDbAsync();
+            var sharedRecipeEntities = allRecipes
+                .Where(r => recipeIds.Contains(r.Id))
+                .ToList();
+
+            // Map to DTOs
+            var result = sharedRecipeEntities
+                .Select(r => recipesService.MapToDTO(r))
+                .ToList();
+
+            return Ok(result);
+        }
     }
 }
