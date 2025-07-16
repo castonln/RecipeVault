@@ -14,7 +14,7 @@ import { useErrorContext } from '../../context/ErrorContext';
 
 const RecipeInstructions = () => {
   const { showError } = useErrorContext();
-  const recipe = useContext(RecipeContext);
+  const { recipe } = useContext(RecipeContext);
   const recipeId = recipe.id;
 
   const [isEditing, setIsEditing] = useState(false);

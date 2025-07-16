@@ -3,7 +3,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import EditIcon from '@mui/icons-material/Edit';
 import { Box, CircularProgress, FormControl, Grid, IconButton, Input, InputBase, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { RecipeContext } from '../../context/RecipeContext.js';
@@ -64,7 +64,7 @@ const WhiteInput = styled(Input)(({ theme }) => ({
 const RecipeDetails = () => {
   const navigate = useNavigate();
   const { showError } = useErrorContext();
-  const recipe = useContext(RecipeContext);
+  const { recipe, recipeMetadata } = useContext(RecipeContext);
   const recipeId = recipe.id;
   const { userId } = useAuth();
 
@@ -311,7 +311,7 @@ const RecipeDetails = () => {
             Calories
           </Typography>
           <Typography variant="h6" sx={{ fontWeight: 700, marginBottom: 0.5 }}>
-            320
+            {Math.round(recipeMetadata.calories)} Cal
           </Typography>
         </Box>
 
@@ -321,7 +321,7 @@ const RecipeDetails = () => {
             Protein
           </Typography>
           <Typography variant="h6" sx={{ fontWeight: 700, marginBottom: 0.5 }}>
-            12g
+            {Math.round(recipeMetadata.protein)} g
           </Typography>
         </Box>
 
@@ -331,7 +331,17 @@ const RecipeDetails = () => {
             Carbs
           </Typography>
           <Typography variant="h6" sx={{ fontWeight: 700, marginBottom: 0.5 }}>
-            45g
+            {Math.round(recipeMetadata.carbs)} g
+          </Typography>
+        </Box>
+
+        {/* Fats */}
+        <Box>
+          <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontWeight: 500 }}>
+            Fats
+          </Typography>
+          <Typography variant="h6" sx={{ fontWeight: 700, marginBottom: 0.5 }}>
+            {Math.round(recipeMetadata.fats)} g
           </Typography>
         </Box>
       </Grid>

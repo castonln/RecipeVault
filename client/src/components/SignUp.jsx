@@ -36,6 +36,8 @@ const SignUp = () => {
                 const newUserId = await response.json();
                 setUserId(newUserId);
                 navigate(ROUTES.SIGNIN.path);
+            } else if (response.status === 422) {
+                setError("User already exists with this email or username.");
             } else {
                 setError("Signup failed. Please try again.");
             }

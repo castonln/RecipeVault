@@ -65,3 +65,14 @@ export async function modifyRecipe(userId, recipeId, data) {
         }),
     });
 }
+
+export async function getRecipeMetadata(recipeId, userId) {
+    const url = `${API_URL}/Recipes/${recipeId}/metadata?userId=${userId}`;
+
+    return await fetch(url, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+}
