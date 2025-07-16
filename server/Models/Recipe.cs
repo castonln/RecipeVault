@@ -18,7 +18,9 @@ public partial class Recipe : BaseEntity
 
     public virtual User CreatedByNavigation { get; set; } = null!;
 
-    public virtual ICollection<Instruction> Instructions { get; set; } = [];
+    public virtual ICollection<Instruction> Instructions { get; set; } = new List<Instruction>();
 
-    public virtual ICollection<RecipeIngredient> RecipeIngredients { get; set; } = [];
+    public virtual ICollection<RecipeIngredient> RecipeIngredients { get; set; } = new List<RecipeIngredient>();
+
+    public virtual ICollection<SharedRecipe> SharedRecipes { get; set; } = new List<SharedRecipe>();
 }
