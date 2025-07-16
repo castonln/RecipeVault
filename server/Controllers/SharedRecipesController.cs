@@ -115,5 +115,80 @@ namespace server.Controllers
 
             return Ok(result);
         }
+
+        [HttpGet("{recipeId}/access")]
+        public async Task<IActionResult> HasAccess([FromRoute] Guid recipeId, [FromQuery] Guid userId)
+        {
+            if (userId == Guid.Empty || recipeId == Guid.Empty)
+            {
+                return BadRequest("userId and recipeId are required.");
+            }
+
+            // Validate userId
+            var user = await usersService.GetByIdFromCacheOrDbAsync(userId);
+            if (user == null)
+            {
+                return UnprocessableEntity("userId is not a valid user.");
+            }
+
+            // Validate recipeId
+            var recipe = await recipesService.GetByIdFromCacheOrDbAsync(recipeId);
+            if (recipe == null)
+            {
+                return UnprocessableEntity("recipeId is not a valid recipe.");
+            }
+
+            // Check if user is the owner or has a share
+            if (recipe.CreatedBy == userId)
+            {
+                return Ok(new { hasAccess = true, reason = "owner" });
+            }
+
+            var sharedRecipes = await shrdRcpeSrvc.GetFromCacheOrDbAsync();
+            bool isShared = sharedRecipes.Any(sr => sr.RecipeId == recipeId && sr.SharedWith == userId);
+
+            return Ok(new { hasAccess = isShared, reason = isShared ? "shared" : "none" });
+        }
+
+        [HttpDelete("{recipeId}")]
+        public async Task<IActionResult> RemoveShare([FromRoute] Guid recipeId, [FromQuery] Guid userId)
+        {
+            if (userId == Guid.Empty || recipeId == Guid.Empty)
+            {
+                return BadRequest("userId and recipeId are required.");
+            }
+
+            // Validate userId
+            var user = await usersService.GetByIdFromCacheOrDbAsync(userId);
+            if (user == null)
+            {
+                return UnprocessableEntity("userId is not a valid user.");
+            }
+
+            // Validate recipeId
+            var recipe = await recipesService.GetByIdFromCacheOrDbAsync(recipeId);
+            if (recipe == null)
+            {
+                return UnprocessableEntity("recipeId is not a valid recipe.");
+            }
+
+            // Find the shared recipe entry
+            var sharedRecipes = await shrdRcpeSrvc.GetFromCacheOrDbAsync();
+            var sharedRecipe = sharedRecipes.FirstOrDefault(sr => sr.RecipeId == recipeId && sr.SharedWith == userId);
+
+            if (sharedRecipe == null)
+            {
+                return NotFound("No shared recipe found for this user and recipe.");
+            }
+
+            // Remove the share and refresh cache
+            var deleted = await shrdRcpeSrvc.DeleteAndRefreshCacheAsync(sharedRecipe.Id);
+            if (deleted == null)
+            {
+                return UnprocessableEntity("Failed to remove share.");
+            }
+
+            return Ok(shrdRcpeSrvc.MapToDTO(deleted));
+        }
     }
 }
