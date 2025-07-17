@@ -1,4 +1,4 @@
-import { createBrowserRouter, createRoutesFromElements, Navigate, Route } from "react-router";
+import { createBrowserRouter, createHashRouter, createRoutesFromElements, Route } from "react-router";
 import RecipeBook from "../components/RecipeBook";
 import RecipePage from "../components/RecipePage/RecipePage";
 import SignIn from "../components/SignIn";
@@ -34,10 +34,10 @@ export const ROUTES = {
       <RequiresAuth>
         <RecipePage />
       </RequiresAuth>
-  }
+  },
 };
 
-export const router = createBrowserRouter(
+export const router = createHashRouter(
   createRoutesFromElements(
     Object.values(ROUTES).map((route) => (
       <Route key={route.path} path={route.path} element={route.element} />
