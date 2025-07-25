@@ -10,6 +10,8 @@ import { RecipeContext } from '../../context/RecipeContext.js';
 import { deleteRecipe, modifyRecipe } from '../../network/recipesApi.js';
 import { ROUTES } from '../../utils/router.jsx';
 import { useErrorContext } from '../../context/ErrorContext.jsx';
+import { getSharedRecipes, postSharedRecipes } from '../../network/sharedRecipesApi.js';
+import { usePermissionsContext } from '../../utils/RequiresRecipeAccess.jsx';
 
 const WhiteTextField = styled(TextField)(({ theme }) => ({
   '& .MuiInputBase-input': {
@@ -67,6 +69,7 @@ const RecipeDetails = () => {
   const { recipe, recipeMetadata } = useContext(RecipeContext);
   const recipeId = recipe.id;
   const { userId } = useAuth();
+  const { ownership } = usePermissionsContext();
 
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -131,6 +134,16 @@ const RecipeDetails = () => {
     }
   };
 
+  const handleShareClick = async () => {
+    try {
+      const response = await postSharedRecipes(userId, "58b86de9-7630-4ac3-b3f8-b4058dfc5163", recipeId);
+      console.log(response);
+    } catch (error) {
+      console.error("Error sharing recipe:", error);
+      showError('Failed to share recipe.');
+    }
+  }
+
   const timeOptions = [5, 10, 15, 20, 30, 45, 60, 90, 120];
 
   return (
@@ -149,28 +162,30 @@ const RecipeDetails = () => {
           <ArrowBack />
         </IconButton>
 
-        <Stack direction='row'>
-          <IconButton onClick={isEditing ? isLoading ? undefined : handleSaveClick : handleEditClick} sx={{ color: 'white' }}>
-            {isEditing ?
-              isLoading ?
+        {(ownership === "owner") &&
+          <Stack direction='row'>
+            <IconButton onClick={isEditing ? isLoading ? undefined : handleSaveClick : handleEditClick} sx={{ color: 'white' }}>
+              {isEditing ?
+                isLoading ?
+                  <CircularProgress size={24} color='inherit' />
+                  :
+                  <CheckIcon />
+                :
+                <EditIcon />
+              }
+            </IconButton>
+            <IconButton sx={{ color: 'white' }} onClick={handleShareClick}>
+              <Share />
+            </IconButton>
+            <IconButton sx={{ color: 'white' }} onClick={isLoading ? undefined : handleDeleteClick}>
+              {isLoading ?
                 <CircularProgress size={24} color='inherit' />
                 :
-                <CheckIcon />
-              :
-              <EditIcon />
-            }
-          </IconButton>
-          <IconButton sx={{ color: 'white' }}>
-            <Share />
-          </IconButton>
-          <IconButton sx={{ color: 'white' }} onClick={isLoading ? undefined : handleDeleteClick}>
-            {isLoading ?
-              <CircularProgress size={24} color='inherit' />
-              :
-              <Delete />
-            }
-          </IconButton>
-        </Stack>
+                <Delete />
+              }
+            </IconButton>
+          </Stack>
+          }
       </Stack>
 
       {/* Title */}

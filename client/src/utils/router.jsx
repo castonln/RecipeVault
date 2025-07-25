@@ -5,6 +5,7 @@ import SignIn from "../components/SignIn";
 import SignUp from "../components/SignUp";
 import RequiresAuth from "./RequiresAuth";
 import RequiresNoAuth from "./RequiresNoAuth";
+import RequiresRecipeAccess from "./RequiresRecipeAccess";
 
 export const ROUTES = {
   RECIPEBOOK: {
@@ -29,10 +30,12 @@ export const ROUTES = {
       </RequiresNoAuth>
   },
   RECIPEPAGE: {
-    path: "/recipe/:recipeId",
+    path: "/recipe/:recipeId/:ownerId",
     element:
       <RequiresAuth>
-        <RecipePage />
+        <RequiresRecipeAccess>
+          <RecipePage />
+        </RequiresRecipeAccess>
       </RequiresAuth>
   }
 };
