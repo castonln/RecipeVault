@@ -190,5 +190,50 @@ namespace server.Controllers
 
             return Ok(shrdRcpeSrvc.MapToDTO(deleted));
         }
+
+
+        [HttpGet("{recipeId}/shared-with")]
+        public async Task<IActionResult> GetSharedWithUsers([FromRoute] Guid recipeId, [FromQuery] Guid userId)
+        {
+            if (userId == Guid.Empty || recipeId == Guid.Empty)
+            {
+                return BadRequest("userId and recipeId are required.");
+            }
+
+            // Validate userId
+            var user = await usersService.GetByIdFromCacheOrDbAsync(userId);
+            if (user == null)
+            {
+                return UnprocessableEntity("userId is not a valid user.");
+            }
+
+            // Validate recipeId and ownership
+            var recipe = await recipesService.GetByIdFromCacheOrDbAsync(recipeId);
+            if (recipe == null)
+            {
+                return UnprocessableEntity("recipeId is not a valid recipe.");
+            }
+            if (recipe.CreatedBy != userId)
+            {
+                return Forbid("You do not own this recipe.");
+            }
+
+            // Get all shared recipes for this recipeId
+            var sharedRecipes = await shrdRcpeSrvc.GetFromCacheOrDbAsync();
+            var sharedWithUserIds = sharedRecipes
+                .Where(sr => sr.RecipeId == recipeId)
+                .Select(sr => sr.SharedWith)
+                .Distinct()
+                .ToList();
+
+            // Get user details for each sharedWith user
+            var allUsers = await usersService.GetFromCacheOrDbAsync();
+            var sharedWithUsers = allUsers
+                .Where(u => sharedWithUserIds.Contains(u.Id))
+                .Select(u => usersService.MapToDTO(u))
+                .ToList();
+
+            return Ok(sharedWithUsers);
+        }
     }
 }
