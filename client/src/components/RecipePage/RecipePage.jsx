@@ -1,16 +1,16 @@
-import { Box, CircularProgress, Stack } from "@mui/material";
+import { Stack } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { IngredientsContext } from "../../context/IngredientsContext";
+import { RecipeContext } from "../../context/RecipeContext";
+import { getIngredients } from "../../network/ingredientsApi";
 import { getRecipe, getRecipeMetadata } from "../../network/recipesApi";
+import LoadingRecipe from "../../utils/LoadingRecipe";
+import { usePermissionsContext } from "../../utils/RequiresRecipeAccess";
 import RecipeDetails from "./RecipeDetails";
 import RecipeIngredients from "./RecipeIngredients";
 import RecipeInstructions from "./RecipeInstructions";
-import { RecipeContext } from "../../context/RecipeContext";
-import { IngredientsContext } from "../../context/IngredientsContext";
-import { getIngredients } from "../../network/ingredientsApi";
-import { usePermissionsContext } from "../../utils/RequiresRecipeAccess";
-import LoadingRecipe from "../../utils/LoadingRecipe";
 
 const RecipePage = () => {
     const { userId } = useAuth();
@@ -55,7 +55,7 @@ const RecipePage = () => {
         fetchRecipeMetadata();
         fetchRecipe();
         fetchIngredients();
-    }, [recipeId, ownerId]);
+    }, []);
 
     if (!recipe) return (
         <LoadingRecipe />
