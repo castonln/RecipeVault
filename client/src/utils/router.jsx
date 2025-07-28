@@ -1,10 +1,12 @@
-import { createBrowserRouter, createHashRouter, createRoutesFromElements, Route } from "react-router";
+import { createHashRouter, createRoutesFromElements, Route } from "react-router";
 import RecipeBook from "../components/RecipeBook";
 import RecipePage from "../components/RecipePage/RecipePage";
 import SignIn from "../components/SignIn";
 import SignUp from "../components/SignUp";
 import RequiresAuth from "./RequiresAuth";
 import RequiresNoAuth from "./RequiresNoAuth";
+import PageNotFound from "../components/NotFound/PageNotFound";
+import RecipeNotFound from "../components/NotFound/RecipeNotFound";
 import RequiresRecipeAccess from "./RequiresRecipeAccess";
 
 export const ROUTES = {
@@ -37,6 +39,10 @@ export const ROUTES = {
           <RecipePage />
         </RequiresRecipeAccess>
       </RequiresAuth>
+  },
+  PAGENOTFOUND: {
+    path: "/*",
+    element: <PageNotFound />  
   },
 };
 

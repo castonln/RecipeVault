@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { getRecipeAccess } from "../network/recipesApi";
 import LoadingRecipe from "./LoadingRecipe";
+import RecipeNotFound from "../components/NotFound/RecipeNotFound";
 
 const PermissionsContext = createContext();
 
@@ -40,7 +41,7 @@ const RequiresRecipeAccess = ({ children }) => {
             <PermissionsContext.Provider value={{ ownership }}>
                 {children}
             </PermissionsContext.Provider>
-            : <Box>Access Denied</Box>;    // TODO: Replace with recipe not found page.
+            : <RecipeNotFound />;
 };
 
 export default RequiresRecipeAccess;
