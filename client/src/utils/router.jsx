@@ -7,6 +7,7 @@ import RequiresAuth from "./RequiresAuth";
 import RequiresNoAuth from "./RequiresNoAuth";
 import PageNotFound from "../components/NotFound/PageNotFound";
 import RecipeNotFound from "../components/NotFound/RecipeNotFound";
+import RequiresRecipeAccess from "./RequiresRecipeAccess";
 
 export const ROUTES = {
   RECIPEBOOK: {
@@ -31,10 +32,12 @@ export const ROUTES = {
       </RequiresNoAuth>
   },
   RECIPEPAGE: {
-    path: "/recipe/:recipeId",
+    path: "/recipe/:recipeId/:ownerId",
     element:
       <RequiresAuth>
-        <RecipePage />
+        <RequiresRecipeAccess>
+          <RecipePage />
+        </RequiresRecipeAccess>
       </RequiresAuth>
   },
   PAGENOTFOUND: {

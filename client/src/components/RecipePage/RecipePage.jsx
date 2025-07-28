@@ -9,10 +9,13 @@ import RecipeInstructions from "./RecipeInstructions";
 import { RecipeContext } from "../../context/RecipeContext";
 import { IngredientsContext } from "../../context/IngredientsContext";
 import { getIngredients } from "../../network/ingredientsApi";
+import { usePermissionsContext } from "../../utils/RequiresRecipeAccess";
+import LoadingRecipe from "../../utils/LoadingRecipe";
 
 const RecipePage = () => {
     const { userId } = useAuth();
-    const { recipeId } = useParams();
+    const { recipeId, ownerId } = useParams();
+    const { ownership } = usePermissionsContext();
 
     const [recipe, setRecipe] = useState(null);
     const [ingredients, setIngredients] = useState(null);
@@ -20,7 +23,7 @@ const RecipePage = () => {
 
     const fetchRecipeMetadata = async () => {
         try {
-            const response = await getRecipeMetadata(recipeId, userId);
+            const response = await getRecipeMetadata(recipeId, ownerId);
             const data = await response.json();
             setRecipeMetadata(data);
         } catch (error) {
@@ -31,7 +34,7 @@ const RecipePage = () => {
     useEffect(() => {
         const fetchRecipe = async () => {
             try {
-                const response = await getRecipe(recipeId, userId);
+                const response = await getRecipe(recipeId, ownerId);
                 const data = await response.json();
                 setRecipe(data);
             } catch (error) {
@@ -52,20 +55,10 @@ const RecipePage = () => {
         fetchRecipeMetadata();
         fetchRecipe();
         fetchIngredients();
-    }, [recipeId, userId]);
+    }, [recipeId, ownerId]);
 
     if (!recipe) return (
-        <Box sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            color: 'grey',
-            justifyContent: 'center',
-            height: '100vh',
-        }}>
-            <CircularProgress size={100} color='inherit' />
-            <Box sx={{ margin: 2, fontSize: 32 }}>Loading Recipe...</Box>
-        </Box>
+        <LoadingRecipe />
     );
 
     return (

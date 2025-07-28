@@ -11,11 +11,13 @@ import DragHandleIcon from '@mui/icons-material/DragHandle';
 import { patchInstructions } from '../../network/instructionsApi';
 import { RecipeContext } from '../../context/RecipeContext';
 import { useErrorContext } from '../../context/ErrorContext';
+import { usePermissionsContext } from '../../utils/RequiresRecipeAccess';
 
 const RecipeInstructions = () => {
   const { showError } = useErrorContext();
   const { recipe } = useContext(RecipeContext);
   const recipeId = recipe.id;
+  const { ownership } = usePermissionsContext();
 
   const [isEditing, setIsEditing] = useState(false);
   const [instructions, setInstructions] = useState(recipe.instructions || []);
@@ -126,16 +128,18 @@ const RecipeInstructions = () => {
 
       }}>
         <Typography variant="h6">Instructions</Typography>
-        <IconButton onClick={isEditing ? isLoading ? undefined : handleSaveClick : handleEditClick} sx={{ color: 'white' }}>
-          {isEditing ?
-            isLoading ?
-              <CircularProgress size={24} color='inherit' />
+        {(ownership === "owner") &&
+          <IconButton onClick={isEditing ? isLoading ? undefined : handleSaveClick : handleEditClick} sx={{ color: 'white' }}>
+            {isEditing ?
+              isLoading ?
+                <CircularProgress size={24} color='inherit' />
+                :
+                <CheckIcon />
               :
-              <CheckIcon />
-            :
-            <EditIcon />
-          }
-        </IconButton>
+              <EditIcon />
+            }
+          </IconButton>
+        }
       </Box>
 
       {/* Body */}

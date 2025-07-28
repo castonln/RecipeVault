@@ -9,11 +9,14 @@ import { IngredientsContext } from '../../context/IngredientsContext';
 import { RecipeContext } from '../../context/RecipeContext';
 import { patchIngredient } from '../../network/ingredientsApi';
 import EditIngredientDialog from './EditIngredientDialog';
+import { usePermissionsContext } from '../../utils/RequiresRecipeAccess';
 
 const RecipeIngredients = () => {
 	const ingredientsList = useContext(IngredientsContext);
 	const { recipe, recipeMetadata, fetchRecipeMetadata } = useContext(RecipeContext);
 	const { showError } = useErrorContext();
+	const { ownership } = usePermissionsContext();
+
 
 	const [ingredients, setIngredients] = useState(recipe.recipeIngredients);
 	const updateIngredients = (data) => {
@@ -127,16 +130,18 @@ const RecipeIngredients = () => {
 					}}
 				>
 					<Typography variant="h6">Ingredients</Typography>
-					<IconButton onClick={isEditing ? isLoading ? undefined : handleSaveClick : handleEditClick} sx={{ color: 'white' }}>
-						{isEditing ?
-							isLoading ?
-								<CircularProgress size={24} color='inherit' />
+					{(ownership === "owner") &&
+						<IconButton onClick={isEditing ? isLoading ? undefined : handleSaveClick : handleEditClick} sx={{ color: 'white' }}>
+							{isEditing ?
+								isLoading ?
+									<CircularProgress size={24} color='inherit' />
+									:
+									<CheckIcon />
 								:
-								<CheckIcon />
-							:
-							<EditIcon />
-						}
-					</IconButton>
+								<EditIcon />
+							}
+						</IconButton>
+					}
 				</Box>
 
 				{/* Ingredient List */}

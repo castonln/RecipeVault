@@ -12,7 +12,6 @@ export async function signUp(credentials) {
 }
 
 export async function logIn(credentials) {
-    console.log(import.meta.env.VITE_API_URL);
     return await fetch(`${API_URL}/Authentication/login`, {
         method: "POST",
         headers: {
