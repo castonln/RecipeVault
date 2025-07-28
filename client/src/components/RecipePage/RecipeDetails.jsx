@@ -1,17 +1,17 @@
 import { ArrowBack, Delete, Share } from '@mui/icons-material';
 import CheckIcon from '@mui/icons-material/Check';
 import EditIcon from '@mui/icons-material/Edit';
-import { Box, CircularProgress, FormControl, Grid, IconButton, Input, InputBase, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
+import { Box, CircularProgress, FormControl, Grid, IconButton, Input, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
+import { useErrorContext } from '../../context/ErrorContext.jsx';
 import { RecipeContext } from '../../context/RecipeContext.js';
 import { deleteRecipe, modifyRecipe } from '../../network/recipesApi.js';
-import { ROUTES } from '../../utils/router.jsx';
-import { useErrorContext } from '../../context/ErrorContext.jsx';
-import { getSharedRecipes, postSharedRecipes } from '../../network/sharedRecipesApi.js';
 import { usePermissionsContext } from '../../utils/RequiresRecipeAccess.jsx';
+import { ROUTES } from '../../utils/router.jsx';
+import ShareRecipeDialog from './ShareRecipeDialog.jsx';
 
 const WhiteTextField = styled(TextField)(({ theme }) => ({
   '& .MuiInputBase-input': {
@@ -79,6 +79,8 @@ const RecipeDetails = () => {
   const [prepTime, setPrepTime] = useState(recipe.prepTime);
   const [cookTime, setCookTime] = useState(recipe.cookTime);
 
+  const [shareRecipeOpen, setShareRecipeOpen] = useState(false);
+
   const [tempState, setTempState] = useState({
     title,
     description,
@@ -134,233 +136,239 @@ const RecipeDetails = () => {
     }
   };
 
-  const handleShareClick = async () => {
-    try {
-      const response = await postSharedRecipes(userId, "58b86de9-7630-4ac3-b3f8-b4058dfc5163", recipeId);
-      console.log(response);
-    } catch (error) {
-      console.error("Error sharing recipe:", error);
-      showError('Failed to share recipe.');
-    }
+  const handleShareClick = () => {
+    setShareRecipeOpen(true);
+  }
+
+  const handleShareClose = () => {
+    setShareRecipeOpen(false);
   }
 
   const timeOptions = [5, 10, 15, 20, 30, 45, 60, 90, 120];
 
   return (
-    <Box sx={(theme) => ({
-      padding: 2.5,
-      backgroundColor: theme.palette.primary.main,
-      color: 'white',
-      position: 'relative',
-      textAlign: 'center',
-      boxShadow: theme.shadows[3]
-    })}>
+    <>
+      <Box sx={(theme) => ({
+        padding: 2.5,
+        backgroundColor: theme.palette.primary.main,
+        color: 'white',
+        position: 'relative',
+        textAlign: 'center',
+        boxShadow: theme.shadows[3]
+      })}>
 
-      {/* Top Menu */}
-      <Stack direction='row' sx={{ justifyContent: 'space-between', marginBottom: 2, }}>
-        <IconButton onClick={() => { navigate(ROUTES.RECIPEBOOK.path) }} sx={{ color: 'white' }}>
-          <ArrowBack />
-        </IconButton>
+        {/* Top Menu */}
+        <Stack direction='row' sx={{ justifyContent: 'space-between', marginBottom: 2, }}>
+          <IconButton onClick={() => { navigate(ROUTES.RECIPEBOOK.path) }} sx={{ color: 'white' }}>
+            <ArrowBack />
+          </IconButton>
 
-        {(ownership === "owner") &&
-          <Stack direction='row'>
-            <IconButton onClick={isEditing ? isLoading ? undefined : handleSaveClick : handleEditClick} sx={{ color: 'white' }}>
-              {isEditing ?
-                isLoading ?
+          {(ownership === "owner") &&
+            <Stack direction='row'>
+              <IconButton onClick={isEditing ? isLoading ? undefined : handleSaveClick : handleEditClick} sx={{ color: 'white' }}>
+                {isEditing ?
+                  isLoading ?
+                    <CircularProgress size={24} color='inherit' />
+                    :
+                    <CheckIcon />
+                  :
+                  <EditIcon />
+                }
+              </IconButton>
+              <IconButton sx={{ color: 'white' }} onClick={handleShareClick}>
+                <Share />
+              </IconButton>
+              <IconButton sx={{ color: 'white' }} onClick={isLoading ? undefined : handleDeleteClick}>
+                {isLoading ?
                   <CircularProgress size={24} color='inherit' />
                   :
-                  <CheckIcon />
-                :
-                <EditIcon />
-              }
-            </IconButton>
-            <IconButton sx={{ color: 'white' }} onClick={handleShareClick}>
-              <Share />
-            </IconButton>
-            <IconButton sx={{ color: 'white' }} onClick={isLoading ? undefined : handleDeleteClick}>
-              {isLoading ?
-                <CircularProgress size={24} color='inherit' />
-                :
-                <Delete />
-              }
-            </IconButton>
-          </Stack>
+                  <Delete />
+                }
+              </IconButton>
+            </Stack>
           }
-      </Stack>
+        </Stack>
 
-      {/* Title */}
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative', mb: 2 }}>
-        {isEditing ? (
-          <WhiteTextField
-            variant="standard"
-            label="Recipe Title"
-            value={tempState.title}
-            onChange={(e) => setTempState((prev) => ({ ...prev, title: e.target.value }))}
-            sx={{
-              width: {
-                xs: '90%',
-                sm: '75%',
-                md: '50%',
-              },
-              '& .MuiInputLabel-root': {
-                color: 'rgba(255, 255, 255, 0.8)',
-              },
-            }}
-            slotProps={{
-              input: {
-                style: {
-                  fontSize: '1.8rem',
-                  fontWeight: 'bold',
-                  color: 'white',
+        {/* Title */}
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative', mb: 2 }}>
+          {isEditing ? (
+            <WhiteTextField
+              variant="standard"
+              label="Recipe Title"
+              value={tempState.title}
+              onChange={(e) => setTempState((prev) => ({ ...prev, title: e.target.value }))}
+              sx={{
+                width: {
+                  xs: '90%',
+                  sm: '75%',
+                  md: '50%',
                 },
-              },
-            }}
-          />
-        ) : (
-          <Typography variant="h4" fontWeight='bold' sx={{ lineHeight: 1.2 }}>
-            {title}
-          </Typography>
-        )}
-      </Box>
-
-      {/* Description */}
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mb: 3 }}>
-        {isEditing ? (
-          <WhiteTextField
-            variant="standard"
-            multiline
-            minRows={2}
-            label="Description"
-            value={tempState.description}
-            onChange={(e) => setTempState((prev) => ({ ...prev, description: e.target.value }))}
-            sx={{
-              width: {
-                xs: '90%',
-                sm: '75%',
-                md: '50%',
-              },
-              '& .MuiInputLabel-root': {
-                color: 'rgba(255, 255, 255, 0.8)',
-              },
-            }}
-            slotProps={{
-              input: { style: { color: 'white' } },
-            }}
-          />
-        ) : (
-          <Typography variant="body1">{description}</Typography>
-        )}
-      </Box>
-
-
-      <Grid
-        container
-        spacing={4}
-        rowSpacing={1}
-        sx={{
-          justifyContent: "center",
-          alignItems: "center",
-          marginBottom: 2,
-        }}
-      >
-
-        {/* Prep Time */}
-        <Box>
-          <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontWeight: 500 }}>
-            Prep Time
-          </Typography>
-          {isEditing ? (
-            <FormControl variant="standard" sx={{ minWidth: 100 }}>
-              <WhiteSelect
-                value={tempState.prepTime}
-                onChange={(e) => setTempState((prev) => ({ ...prev, prepTime: e.target.value }))}
-                input={<WhiteInput />}
-              >
-                {timeOptions.map((option) => (
-                  <MenuItem key={option} value={option}>{option} min</MenuItem>
-                ))}
-              </WhiteSelect>
-            </FormControl>
+                '& .MuiInputLabel-root': {
+                  color: 'rgba(255, 255, 255, 0.8)',
+                },
+              }}
+              slotProps={{
+                input: {
+                  style: {
+                    fontSize: '1.8rem',
+                    fontWeight: 'bold',
+                    color: 'white',
+                  },
+                },
+              }}
+            />
           ) : (
-            <Typography variant="h6" sx={{ fontWeight: 700, marginBottom: 0.5 }}>
-              {prepTime} min
+            <Typography variant="h4" fontWeight='bold' sx={{ lineHeight: 1.2 }}>
+              {title}
             </Typography>
           )}
         </Box>
 
-        {/* Cook Time */}
-        <Box>
-          <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontWeight: 500 }}>
-            Cook Time
-          </Typography>
+        {/* Description */}
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mb: 3 }}>
           {isEditing ? (
-            <FormControl variant="standard" sx={{ minWidth: 100 }}>
-              <WhiteSelect
-                value={tempState.cookTime}
-                onChange={(e) => setTempState((prev) => ({ ...prev, cookTime: e.target.value }))}
-                input={<WhiteInput />}
-              >
-                {timeOptions.map((option) => (
-                  <MenuItem key={option} value={option}>{option} min</MenuItem>
-                ))}
-              </WhiteSelect>
-            </FormControl>
+            <WhiteTextField
+              variant="standard"
+              multiline
+              minRows={2}
+              label="Description"
+              value={tempState.description}
+              onChange={(e) => setTempState((prev) => ({ ...prev, description: e.target.value }))}
+              sx={{
+                width: {
+                  xs: '90%',
+                  sm: '75%',
+                  md: '50%',
+                },
+                '& .MuiInputLabel-root': {
+                  color: 'rgba(255, 255, 255, 0.8)',
+                },
+              }}
+              slotProps={{
+                input: { style: { color: 'white' } },
+              }}
+            />
           ) : (
-            <Typography variant="h6" sx={{ fontWeight: 700, marginBottom: 0.5 }}>
-              {cookTime} min
-            </Typography>
+            <Typography variant="body1">{description}</Typography>
           )}
         </Box>
 
-        <Box
+
+        <Grid
+          container
+          spacing={4}
+          rowSpacing={1}
           sx={{
-            flexBasis: '100%',
-            height: 0,
-            display: { sm: 'none' }
+            justifyContent: "center",
+            alignItems: "center",
+            marginBottom: 2,
           }}
-        />
+        >
 
-        {/* Calories */}
-        <Box>
-          <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontWeight: 500 }}>
-            Calories
-          </Typography>
-          <Typography variant="h6" sx={{ fontWeight: 700, marginBottom: 0.5 }}>
-            {Math.round(recipeMetadata?.calories)} Cal
-          </Typography>
-        </Box>
+          {/* Prep Time */}
+          <Box>
+            <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontWeight: 500 }}>
+              Prep Time
+            </Typography>
+            {isEditing ? (
+              <FormControl variant="standard" sx={{ minWidth: 100 }}>
+                <WhiteSelect
+                  value={tempState.prepTime}
+                  onChange={(e) => setTempState((prev) => ({ ...prev, prepTime: e.target.value }))}
+                  input={<WhiteInput />}
+                >
+                  {timeOptions.map((option) => (
+                    <MenuItem key={option} value={option}>{option} min</MenuItem>
+                  ))}
+                </WhiteSelect>
+              </FormControl>
+            ) : (
+              <Typography variant="h6" sx={{ fontWeight: 700, marginBottom: 0.5 }}>
+                {prepTime} min
+              </Typography>
+            )}
+          </Box>
 
-        {/* Protein */}
-        <Box>
-          <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontWeight: 500 }}>
-            Protein
-          </Typography>
-          <Typography variant="h6" sx={{ fontWeight: 700, marginBottom: 0.5 }}>
-            {Math.round(recipeMetadata?.protein)} g
-          </Typography>
-        </Box>
+          {/* Cook Time */}
+          <Box>
+            <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontWeight: 500 }}>
+              Cook Time
+            </Typography>
+            {isEditing ? (
+              <FormControl variant="standard" sx={{ minWidth: 100 }}>
+                <WhiteSelect
+                  value={tempState.cookTime}
+                  onChange={(e) => setTempState((prev) => ({ ...prev, cookTime: e.target.value }))}
+                  input={<WhiteInput />}
+                >
+                  {timeOptions.map((option) => (
+                    <MenuItem key={option} value={option}>{option} min</MenuItem>
+                  ))}
+                </WhiteSelect>
+              </FormControl>
+            ) : (
+              <Typography variant="h6" sx={{ fontWeight: 700, marginBottom: 0.5 }}>
+                {cookTime} min
+              </Typography>
+            )}
+          </Box>
 
-        {/* Carbs */}
-        <Box>
-          <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontWeight: 500 }}>
-            Carbs
-          </Typography>
-          <Typography variant="h6" sx={{ fontWeight: 700, marginBottom: 0.5 }}>
-            {Math.round(recipeMetadata?.carbs)} g
-          </Typography>
-        </Box>
+          <Box
+            sx={{
+              flexBasis: '100%',
+              height: 0,
+              display: { sm: 'none' }
+            }}
+          />
 
-        {/* Fats */}
-        <Box>
-          <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontWeight: 500 }}>
-            Fats
-          </Typography>
-          <Typography variant="h6" sx={{ fontWeight: 700, marginBottom: 0.5 }}>
-            {Math.round(recipeMetadata?.fats)} g
-          </Typography>
-        </Box>
-      </Grid>
-    </Box>
+          {/* Calories */}
+          <Box>
+            <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontWeight: 500 }}>
+              Calories
+            </Typography>
+            <Typography variant="h6" sx={{ fontWeight: 700, marginBottom: 0.5 }}>
+              {Math.round(recipeMetadata?.calories)} Cal
+            </Typography>
+          </Box>
+
+          {/* Protein */}
+          <Box>
+            <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontWeight: 500 }}>
+              Protein
+            </Typography>
+            <Typography variant="h6" sx={{ fontWeight: 700, marginBottom: 0.5 }}>
+              {Math.round(recipeMetadata?.protein)} g
+            </Typography>
+          </Box>
+
+          {/* Carbs */}
+          <Box>
+            <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontWeight: 500 }}>
+              Carbs
+            </Typography>
+            <Typography variant="h6" sx={{ fontWeight: 700, marginBottom: 0.5 }}>
+              {Math.round(recipeMetadata?.carbs)} g
+            </Typography>
+          </Box>
+
+          {/* Fats */}
+          <Box>
+            <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontWeight: 500 }}>
+              Fats
+            </Typography>
+            <Typography variant="h6" sx={{ fontWeight: 700, marginBottom: 0.5 }}>
+              {Math.round(recipeMetadata?.fats)} g
+            </Typography>
+          </Box>
+        </Grid>
+      </Box>
+
+      {(ownership === "owner") &&
+        <ShareRecipeDialog
+          open={shareRecipeOpen}
+          onClose={handleShareClose} />
+      }
+    </>
   );
 };
 

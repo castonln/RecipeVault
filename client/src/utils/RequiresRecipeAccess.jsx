@@ -22,8 +22,6 @@ const RequiresRecipeAccess = ({ children }) => {
                 const response = await getRecipeAccess(recipeId, userId);
                 const data = await response.json();
 
-                console.log(data);
-
                 setHasAccess(data.hasAccess);
                 setOwnership(data.reason);
                 setIsLoading(false);
