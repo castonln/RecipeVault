@@ -76,3 +76,14 @@ export async function getRecipeMetadata(recipeId, userId) {
         },
     });
 }
+
+export async function getRecipeAccess(recipeId, userId) {
+    const url = `${API_URL}/SharedRecipes/${recipeId}/access?userId=${userId}`;
+
+    return await fetch(url, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+}
