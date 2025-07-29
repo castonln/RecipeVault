@@ -8,7 +8,7 @@ namespace server.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class RecipesController(RecipesService rcpeSrvc, UsersService usrSrvc) : ControllerBase
+    public class RecipesController(RecipesService rcpeSrvc, UsersService usrSrvc, SharedRecipesService shrdRcpeSrvc) : ControllerBase
     {
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] Guid userId)
@@ -152,6 +152,14 @@ namespace server.Controllers
             // Check if recipe belongs to user
             if (recipe.CreatedBy != userId)
                 return UnprocessableEntity("Recipe does not belong to the specified user.");
+
+            // Remove all shared instances for this recipe
+            var sharedRecipes = await shrdRcpeSrvc.GetFromCacheOrDbAsync();
+            var sharedToDelete = sharedRecipes.Where(sr => sr.RecipeId == recipeId).ToList();
+            foreach (var shared in sharedToDelete)
+            {
+                await shrdRcpeSrvc.DeleteAndRefreshCacheAsync(shared.Id);
+            }
 
             // Delete recipe and refresh cache
             var deleted = await rcpeSrvc.DeleteWithRelatedAndRefreshCacheAsync(recipeId);
