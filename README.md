@@ -10,8 +10,8 @@
 
 This project was undertaken to address the need for a centralized, accessible platform to store and view personal recipes online. Currently, recipes are often scattered across handwritten notes, physical cookbooks, or saved on individual devices, making them difficult to organize and access on demand. By developing a web-based recipe management application, users will be able to view their collection of recipes from any device with internet access.
 
-In addition to basic storage and viewing functionality, the platform will enhance the user experience by providing supplementary details such as nutritional information, preparation and cook times, and other relevant attributes. Another key feature will be the ability to share recipes with other users, streamlining the process of exchanging culinary ideas with friends and family.
-This application serves as a digital recipe box—modernized for the web—offering convenience, rich metadata, and a social sharing element that traditional methods lack.
+In addition to basic storage and viewing functionality, the platform enhances the user experience by providing supplementary details such as nutritional information, preparation and cook times, and other relevant attributes. Another key feature is the ability to share recipes with other users, streamlining the process of exchanging culinary ideas with friends and family.
+This application serves as a digital recipe box modernized for the web offering convenience, rich metadata, and a social sharing element that traditional methods lack.
 
 ## Technologies Employed
 
@@ -38,3 +38,4 @@ _Frontend:_ Vite + React & React + Electron
   <img width="1434" height="727" alt="image" src="https://github.com/user-attachments/assets/69e85954-bc5b-42b2-bf0e-0635ff535225" />
   <img width="1600" height="566" alt="image" src="https://github.com/user-attachments/assets/a5d383e0-308e-465d-95a4-482e22f76b0e" />
 </p>
+
