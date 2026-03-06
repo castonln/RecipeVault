@@ -1,24 +1,40 @@
-# Introduction 
-TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project. 
+<div align="center">
+  <h1>RecipeVault</h1>
+  <p>A recipe storage and sharing application.</p>
+  <p><em>Eli Rindler, Braden Monnin, Logan Castonguay, Stuart Smith, Massimo Lancia</em></p>
+  <p><strong>EECE3093 Summer 2025</strong></p>
+  <img height="400" alt="image" src="https://github.com/user-attachments/assets/f0a39ca2-c60f-46c7-9109-926080472cec" />
+</div>
 
-# Getting Started
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
-1.	Installation process
-2.	Software dependencies
-3.	Latest releases
-4.	API references
+## Description
 
-# Build and Test
-TODO: Describe and show how to build your code and run the tests. 
+This project was undertaken to address the need for a centralized, accessible platform to store and view personal recipes online. Currently, recipes are often scattered across handwritten notes, physical cookbooks, or saved on individual devices, making them difficult to organize and access on demand. By developing a web-based recipe management application, users will be able to view their collection of recipes from any device with internet access.
 
-# Contribute
-TODO: Explain how other users and developers can contribute to make your code better. 
+In addition to basic storage and viewing functionality, the platform will enhance the user experience by providing supplementary details such as nutritional information, preparation and cook times, and other relevant attributes. Another key feature will be the ability to share recipes with other users, streamlining the process of exchanging culinary ideas with friends and family.
+This application serves as a digital recipe box—modernized for the web—offering convenience, rich metadata, and a social sharing element that traditional methods lack.
 
-If you want to learn more about creating good readme files then refer the following [guidelines](https://docs.microsoft.com/en-us/azure/devops/repos/git/create-a-readme?view=azure-devops). You can also seek inspiration from the below readme files:
-- [ASP.NET Core](https://github.com/aspnet/Home)
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
-- [Chakra Core](https://github.com/Microsoft/ChakraCore)
+## Technologies Employed
 
+_Database:_ PostgreSQL, Supabase
 
-# Scaffolding Command
-dotnet ef dbcontext scaffold $Env:RV_DB_CONNECTION_STRING Npgsql.EntityFrameworkCore.PostgreSQL --schema public -o Models --context-dir Data --context AppDbContext --force
+_Backend:_ .NET Entity Framework API
+
+_Frontend:_ Vite + React & React + Electron
+
+### Frontend
+<p align="center">
+    <img width="567" height="756" alt="image" src="https://github.com/user-attachments/assets/c3a713eb-6dce-4408-b53c-6a1b5f9d378a" /> 
+
+<img height="300" alt="image" src="https://github.com/user-attachments/assets/813c677d-cc66-46fc-a82e-d5d6f46a8b0c" />
+
+<img height="300" alt="image" src="https://github.com/user-attachments/assets/64277274-0f65-48f7-8ed4-6db9050bbd92" />
+
+<img height="300" alt="image" src="https://github.com/user-attachments/assets/b8d3669b-3f9b-42ad-974a-93788ea59220" />
+
+</p>
+
+### Backend
+<p align="center">
+  <img width="1434" height="727" alt="image" src="https://github.com/user-attachments/assets/69e85954-bc5b-42b2-bf0e-0635ff535225" />
+  <img width="1600" height="566" alt="image" src="https://github.com/user-attachments/assets/a5d383e0-308e-465d-95a4-482e22f76b0e" />
+</p>
